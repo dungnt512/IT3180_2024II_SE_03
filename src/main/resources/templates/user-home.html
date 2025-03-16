@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trang chủ</title>
+    <link rel="stylesheet" href="/assets/compiled/css/app.css">
+    <link rel="stylesheet" href="/assets/compiled/css/app-dark.css">
+    <link rel="stylesheet" href="/assets/compiled/css/auth.css">
+    <style>
+        .container {
+            max-width: 600px;
+            margin: 50px auto;
+            text-align: center;
+            padding: 20px;
+            border: 2px solid #ccc;
+            border-radius: 10px;
+            background-color: #f9f9f9;
+        }
+        .user-info, .resident-info {
+            text-align: left;
+            margin-bottom: 20px;
+        }
+        .user-info p, .resident-info p {
+            margin: 5px 0;
+            font-size: 1.1rem;
+        }
+        .button-box {
+            margin-top: 20px;
+        }
+        .button-box a {
+            display: inline-block;
+            padding: 10px 15px;
+            margin: 5px;
+            font-size: 1rem;
+            border-radius: 5px;
+            text-decoration: none;
+        }
+        .btn-change-password {
+            background-color: #007bff;
+            color: white;
+        }
+        .btn-logout {
+            background-color: #dc3545;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Chào mừng, <span th:text="${username}"></span>!</h1>
+    <p>Đây là trang chủ sau khi đăng nhập thành công.</p>
+
+    <div class="user-info">
+        <h2>Thông tin tài khoản</h2>
+        <p><strong>Tên đăng nhập:</strong> <span th:text="${username}"></span></p>
+    </div>
+
+    <div class="resident-info">
+        <h2>Thông tin cư dân</h2>
+        <p><strong>Họ và tên:</strong> <span th:text="${resident.fullName}"></span></p>
+        <p><strong>Tuổi:</strong> <span th:text="${resident.age}"></span></p>
+        <p><strong>Số điện thoại:</strong> <span th:text="${resident.phone}"></span></p>
+        <p><strong>Email:</strong> <span th:text="${resident.email}"></span></p>
+        <p><strong>Mã căn hộ:</strong> <span th:text="${resident.apartmentId}"></span></p>
+    </div>
+
+    <div class="button-box">
+        <a th:href="@{/user/change-password}" class="btn-change-password">Đổi mật khẩu</a>
+        <a th:href="@{/logout}" class="btn-logout">Đăng xuất</a>
+    </div>
+</div>
+</body>
+</html>

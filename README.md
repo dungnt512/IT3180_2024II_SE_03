@@ -5,12 +5,12 @@ IT3180_2024II_SE_03: Nhóm SE-03 - Nhập môn Công nghệ phần mềm
 ## 1. Đăng nhập hệ thống
 
 ### Đối với Ban quản lý:
-- Truy cập vào địa chỉ website: [](https://front-end-lyart-eight.vercel.app)
+- Truy cập vào địa chỉ website: [BlueMoon AMS](https://front-end-lyart-eight.vercel.app)
 - Nhập tên đăng nhập và mật khẩu được cấp
 - Nhấn nút **"Đăng nhập"**
 
 ### Đối với Cư dân:
-- Truy cập vào địa chỉ website: [](https://front-end-lyart-eight.vercel.app)
+- Truy cập vào địa chỉ website: [BlueMoon AMS](https://front-end-lyart-eight.vercel.app)
 - Nhập tên đăng nhập và mật khẩu được cấp
 - Nhấn nút **"Đăng nhập"**
 

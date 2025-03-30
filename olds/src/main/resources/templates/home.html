@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trang chủ</title>
+    <link rel="stylesheet" href="/assets/compiled/css/app.css">
+    <link rel="stylesheet" href="/assets/compiled/css/app-dark.css">
+    <link rel="stylesheet" href="/assets/compiled/css/auth.css">
+    <style>
+        .auth-box {
+            border: 2px solid #ccc;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            text-align: center;
+        }
+        .auth-box a {
+            font-size: 1.5rem;
+            display: block;
+            padding: 10px 0;
+        }
+    </style>
+</head>
+<body>
+<script src="/assets/static/js/initTheme.js"></script>
+<div id="auth">
+    <div class="row h-100">
+        <div class="col-lg-5 col-12">
+            <div id="auth-left">
+                <div class="auth-logo">
+                    <a th:href="@{/index}"><img src="/assets/compiled/svg/logo.svg" alt="Logo"></a>
+                </div>
+                <h1 class="auth-title">Chào mừng, <span th:text="${username}"></span>!</h1>
+                <p class="auth-subtitle mb-5">Đây là trang chủ sau khi đăng nhập thành công.</p>
+
+                <div class="auth-box">
+                    <p><a th:href="@{./change-password}" class="font-bold">Đổi mật khẩu</a></p>
+                </div>
+
+                <div class="auth-box">
+                    <p><a th:href="@{/login}" class="font-bold text-danger">Đăng xuất</a></p>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-7 d-none d-lg-block">
+            <div id="auth-right"></div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

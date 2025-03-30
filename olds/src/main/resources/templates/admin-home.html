@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quản lý người dùng</title>
+  <link rel="stylesheet" href="/assets/compiled/css/app.css">
+  <link rel="stylesheet" href="/assets/compiled/css/app-dark.css">
+  <link rel="stylesheet" href="/assets/compiled/css/auth.css">
+  <style>
+    .auth-box {
+      border: 2px solid #ccc;
+      border-radius: 10px;
+      padding: 20px;
+      margin-top: 20px;
+      text-align: center;
+    }
+    .auth-box a {
+      font-size: 1.2rem;
+      display: block;
+      padding: 10px 0;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    table, th, td {
+      border: 1px solid #ddd;
+    }
+    th, td {
+      padding: 10px;
+      text-align: center;
+    }
+    th {
+      background-color: #f4f4f4;
+    }
+    .btn {
+      padding: 5px 10px;
+      border: none;
+      cursor: pointer;
+    }
+    .btn-activate {
+      background-color: green;
+      color: white;
+      border-radius: 5px;
+    }
+    .btn-disabled {
+      background-color: gray;
+      color: white;
+      border-radius: 5px;
+      cursor: not-allowed;
+    }
+  </style>
+</head>
+<body>
+<script src="/assets/static/js/initTheme.js"></script>
+<div id="auth">
+  <div class="row h-100">
+    <div class="col-lg-5 col-12">
+      <div id="auth-left">
+        <div class="auth-logo">
+          <a th:href="@{/index}"><img src="/assets/compiled/svg/logo.svg" alt="Logo"></a>
+        </div>
+        <h1 class="auth-title">Chào mừng, Admin!</h1>
+        <p class="auth-subtitle mb-5">Danh sách người dùng:</p>
+
+        <table>
+          <thead>
+          <tr>
+            <th>ID</th>
+            <th>Tên đăng nhập</th>
+            <th>Vai trò</th>
+            <th>Trạng thái</th>
+            <th>Hành động</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr th:each="user : ${users}">
+            <td th:text="${user.id}"></td>
+            <td th:text="${user.name}"></td>
+            <td th:text="${user.role}"></td>
+            <td th:text="${user.activation} ? 'Kích hoạt' : 'Chưa kích hoạt'"></td>
+            <td>
+              <button th:if="!${user.activation}"
+                      th:attr="data-id=${user.id}"
+                      class="btn btn-activate"
+                      onclick="activateUser(this)">
+                Kích hoạt
+              </button>
+              <button th:if="${user.activation}" class="btn btn-disabled" disabled>
+                Đã kích hoạt
+              </button>
+            </td>
+          </tr>
+          </tbody>
+        </table>
+
+        <div class="auth-box">
+          <p><a th:href="@{/admin/change-password}" class="font-bold">Đổi mật khẩu</a></p>
+        </div>
+
+        <div class="auth-box">
+          <p><a th:href="@{/login}" class="font-bold text-danger">Đăng xuất</a></p>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-7 d-none d-lg-block">
+      <div id="auth-right"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function activateUser(button) {
+    let userId = button.getAttribute("data-id");
+
+    fetch(`/admin/activate/${userId}`, {
+      method: "POST"
+    })
+            .then(response => response.text())
+            .then(result => {
+              if (result === "success") {
+                button.innerText = "Đã kích hoạt";
+                button.classList.remove("btn-activate");
+                button.classList.add("btn-disabled");
+                button.disabled = true;
+                let statusCell = button.parentElement.previousElementSibling;
+                statusCell.innerText = "Kích hoạt";
+              } else {
+                alert("Kích hoạt thất bại!");
+              }
+            })
+            .catch(error => console.error("Lỗi:", error));
+  }
+</script>
+
+</body>
+</html>

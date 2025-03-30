@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng ký</title>
+    <link rel="stylesheet" href="/assets/compiled/css/app.css">
+    <link rel="stylesheet" href="/assets/compiled/css/auth.css">
+</head>
+<body>
+<div id="auth">
+    <div class="row h-100">
+        <div class="col-lg-5 col-12">
+            <div id="auth-left">
+                <h1 class="auth-title">Sign Up</h1>
+                <p class="auth-subtitle mb-5">Input your data to register to our website.</p>
+
+                <!-- Hiển thị thông báo lỗi chung nếu có -->
+                <div th:if="${message}" class="alert alert-danger">
+                    <p th:text="${message}"></p>
+                </div>
+
+                <form th:action="@{register}" method="post" th:object="${user}">
+                    <!-- Trường name -->
+                    <div class="form-group position-relative has-icon-left mb-4">
+                        <input type="text" class="form-control form-control-xl" placeholder="Name" th:field="*{name}" required/>
+                        <div class="form-control-icon">
+                            <i class="bi bi-file-person"></i>
+                        </div>
+                        <!-- Hiển thị lỗi cho trường name -->
+                        <small class="text-danger" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></small>
+                    </div>
+
+                    <!-- Trường password -->
+                    <div class="form-group position-relative has-icon-left mb-4">
+                        <input type="password" class="form-control form-control-xl" placeholder="Password" th:field="*{password}" required/>
+                        <div class="form-control-icon">
+                            <i class="bi bi-shield-lock"></i>
+                        </div>
+                        <!-- Hiển thị lỗi cho trường password -->
+                        <small class="text-danger" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></small>
+                    </div>
+
+                    <!-- Trường fullName -->
+                    <div class="form-group position-relative has-icon-left mb-4">
+                        <input type="text" class="form-control form-control-xl" placeholder="FullName" th:field="*{fullName}" required/>
+                        <div class="form-control-icon">
+                            <i class="bi bi-file-person"></i>
+                        </div>
+                        <!-- Hiển thị lỗi cho trường name -->
+                        <small class="text-danger" th:if="${#fields.hasErrors('fullName')}" th:errors="*{fullName}"></small>
+                    </div>
+
+                    <!-- Trường age -->
+                    <div class="form-group position-relative has-icon-left mb-4">
+                        <input type="number" class="form-control form-control-xl" placeholder="Age" th:field="*{age}" required/>
+                        <div class="form-control-icon">
+                            <i class="bi bi-calendar"></i>
+                        </div>
+                        <!-- Hiển thị lỗi cho trường age -->
+                        <small class="text-danger" th:if="${#fields.hasErrors('age')}" th:errors="*{age}"></small>
+                    </div>
+
+                    <!-- Trường phone -->
+                    <div class="form-group position-relative has-icon-left mb-4">
+                        <input type="text" class="form-control form-control-xl" placeholder="Phone" th:field="*{phone}" required/>
+                        <div class="form-control-icon">
+                            <i class="bi bi-phone"></i>
+                        </div>
+                        <!-- Hiển thị lỗi cho trường phone -->
+                        <small class="text-danger" th:if="${#fields.hasErrors('phone')}" th:errors="*{phone}"></small>
+                    </div>
+
+                    <!-- Trường email -->
+                    <div class="form-group position-relative has-icon-left mb-4">
+                        <input type="email" class="form-control form-control-xl" placeholder="Email" th:field="*{email}" required/>
+                        <div class="form-control-icon">
+                            <i class="bi bi-envelope"></i>
+                        </div>
+                        <!-- Hiển thị lỗi cho trường email -->
+                        <small class="text-danger" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></small>
+                    </div>
+
+                    <!-- Trường apartmentId -->
+                    <div class="form-group position-relative has-icon-left mb-4">
+                        <input type="text" class="form-control form-control-xl" placeholder="Apartment ID" th:field="*{apartmentId}" required/>
+                        <div class="form-control-icon">
+                            <i class="bi bi-house-door"></i>
+                        </div>
+                        <!-- Hiển thị lỗi cho apartmentId -->
+                        <small class="text-danger" th:if="${#fields.hasErrors('apartmentId')}" th:errors="*{apartmentId}"></small>
+                    </div>
+
+
+                    <button class="btn btn-primary btn-block btn-lg shadow-lg mt-5">Sign Up</button>
+                </form>
+
+                <div class="text-center mt-5 text-lg fs-4">
+                    <p class='text-gray-600'>Already have an account? <a th:href="@{login}" class="font-bold">Log in</a>.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -32,7 +32,7 @@ import { MdCancel, MdCheckCircle } from 'react-icons/md';
 import UserModal from './UserModal';
 import columnsIcon from './IconButton';
 const columnHelper = createColumnHelper();
-
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 const activateAccount = async (globalId, toast) => {
   try {
     const token = localStorage.getItem('token'); // Lấy token từ localStorage
@@ -42,7 +42,7 @@ const activateAccount = async (globalId, toast) => {
     }
 
     const response = await axios.post(
-      `https://backend-production-de57.up.railway.app/admin/users/activate/${globalId}`,
+      `${API_BASE_URL}/api/admin/users/activate/${globalId}`,
       {}, // Body rỗng
       {
         headers: {
@@ -82,7 +82,7 @@ const deactivateAccount = async (globalId, toast) => {
     }
 
     const response = await axios.post(
-      `https://backend-production-de57.up.railway.app/admin/users/deactivate/${globalId}`,
+      `${API_BASE_URL}/api/admin/users/deactivate/${globalId}`,
       {}, // Body rỗng
       {
         headers: {
@@ -94,7 +94,7 @@ const deactivateAccount = async (globalId, toast) => {
 
     if (response.status === 200) {
       toast({
-        title: 'Account activated!',
+        title: 'Account deactivated!',
         description: `Account with ID: ${globalId} has been successfully deactivated.`,
         status: 'success',
         duration: 2000,
@@ -209,7 +209,7 @@ export default function ColumnTable({ tableData, columnsConfig, refreshData }) {
   const [error, setError] = React.useState('');
   // Phân trang
   const [currentPage, setCurrentPage] = React.useState(1);
-  const [isVisible, setIsVisible] = React.useState(false); // Trạng thái hiển thị bảng
+  const [isVisible, setIsVisible] = React.useState(true); // Trạng thái hiển thị bảng
   const rowsPerPage = 5;
   const [idEdit, setIdEdit] = React.useState(0);
   const [mode, setMode] = React.useState('');
@@ -223,7 +223,7 @@ export default function ColumnTable({ tableData, columnsConfig, refreshData }) {
     gender: '',
     phone: '',
     email: '',
-    apartmentId: '',
+    apartmentId: [],
   });
 
   const submitUserData = async (
@@ -312,12 +312,14 @@ export default function ColumnTable({ tableData, columnsConfig, refreshData }) {
     const formattedData = {
       ...formData,
       apartmentNumbers: Array.isArray(formData.apartmentNumbers)
-          ? formData.apartmentNumbers
-          : formData.apartmentNumbers.split(',').map(num => num.trim()) // Chuyển từ chuỗi CSV thành mảng
-  };
+        ? formData.apartmentNumbers.length === 1 && formData.apartmentNumbers[0] === "" 
+          ? null 
+          : formData.apartmentNumbers
+        : formData.apartmentNumbers.split(',').map(num => num.trim()).filter(num => num) || null
+    };
     if (mode === 'create') {
       await submitUserData(
-        'https://backend-production-de57.up.railway.app/api/admin/users/add',
+        `${API_BASE_URL}/api/admin/users/add`,
         'POST',
         formattedData,
         'User created successfully',
@@ -325,9 +327,9 @@ export default function ColumnTable({ tableData, columnsConfig, refreshData }) {
       );
     } else if (mode === 'edit') {
       await submitUserData(
-        `https://backend-production-de57.up.railway.app/api/admin/users/edit/${idEdit}`,
+        `${API_BASE_URL}/api/admin/users/edit/${idEdit}`,
         'POST',
-        formData,
+        formattedData,
         'User updated successfully',
         'Updating Successful!',
       );
@@ -338,7 +340,7 @@ export default function ColumnTable({ tableData, columnsConfig, refreshData }) {
     try {
       const token = localStorage.getItem('token');
       const response = await fetch(
-        `https://backend-production-de57.up.railway.app/api/admin/users/resident-info/${id}`,
+        `${API_BASE_URL}/api/admin/users/resident-info/${id}`,
         {
           method: 'GET',
           headers: {
@@ -371,7 +373,7 @@ export default function ColumnTable({ tableData, columnsConfig, refreshData }) {
     try {
       const token = localStorage.getItem('token');
       const response = await fetch(
-        `https://backend-production-de57.up.railway.app/api/admin/users/edit/${id}`,
+        `${API_BASE_URL}/api/admin/users/edit/${id}`,
         {
           method: 'GET',
           headers: {
@@ -507,18 +509,6 @@ export default function ColumnTable({ tableData, columnsConfig, refreshData }) {
           </Button>
         </Flex>
         <Flex align="center">
-          <Button
-            variant="darkBrand"
-            color="white"
-            fontSize="sm"
-            fontWeight="500"
-            borderRadius="10px"
-            px="15px"
-            py="5px"
-            onClick={() => setIsVisible(!isVisible)} // Toggle hiển thị bảng
-          >
-            {isVisible ? 'Hide Table' : 'Show Table'}
-          </Button>
         </Flex>
       </Flex>
 

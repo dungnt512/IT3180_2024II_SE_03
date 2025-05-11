@@ -4,22 +4,30 @@ import com.example.demo.dto.ApartmentDTO;
 import com.example.demo.dto.ResidentDTO;
 import com.example.demo.entity.Apartment;
 import com.example.demo.entity.Resident;
+import com.example.demo.enums.ApartmentStatus;
+import com.example.demo.exception.ApartmentNotFoundException;
 import com.example.demo.repository.ApartmentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+
 @Service
 public class ApartmentService {
 
     @Autowired
     private ApartmentRepository apartmentRepository;
+    @Autowired
+    private BillService billService;
 
     // Lấy danh sách tất cả các căn hộ
     public List<Apartment> getAllApartments() {
         return apartmentRepository.findAll();
+    }
+
+    public Apartment findById(Long id) {
+        Optional<Apartment> apartment = apartmentRepository.findById(id);
+        return apartment.orElseThrow(() -> new RuntimeException("Căn hộ không tồn tại"));
     }
 
     // Lấy thông tin căn hộ theo ID
@@ -34,9 +42,12 @@ public class ApartmentService {
         }
         return apartmentNumbers;
     }
-
     public Apartment getApartmentByNumber(String apartmentNumber) {
-        return apartmentRepository.findByApartmentNumber(apartmentNumber);
+        Apartment apartment = apartmentRepository.findByApartmentNumber(apartmentNumber);
+        if (apartment == null) {
+            throw new ApartmentNotFoundException(apartmentNumber); // Hoặc bạn có thể ném một exception khác tùy ý
+        }
+        return apartment;
     }
 
     public void saveApartment(ApartmentDTO apartmentDTO) {
@@ -45,9 +56,6 @@ public class ApartmentService {
         apartment.setRoomNumber(apartmentDTO.getRoomNumber());
         apartment.setFloor(apartmentDTO.getFloor());
         apartment.setArea(apartmentDTO.getArea());
-        // Lấy thời gian hiện tại và format theo DD/MM/YY
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-        apartment.setDateCreated(LocalDateTime.now().format(formatter));
 
         apartmentRepository.save(apartment);
     }
@@ -57,6 +65,7 @@ public class ApartmentService {
         apartment.setRoomNumber(apartmentDTO.getRoomNumber());
         apartment.setFloor(apartmentDTO.getFloor());
         apartment.setArea(apartmentDTO.getArea());
+        apartment.setStatus(apartmentDTO.getStatus());
 
         apartmentRepository.save(apartment);
     }
@@ -71,6 +80,10 @@ public class ApartmentService {
                 residentIds.remove(resident.getId());
                 apartment.setResidentIds(residentIds);
 
+                if (residentIds.isEmpty() && apartment.getStatus() == ApartmentStatus.RENT) {
+                    apartment.setStatus(ApartmentStatus.VACANT);
+                }
+
                 apartmentRepository.save(apartment);
             }
         }
@@ -84,10 +97,24 @@ public class ApartmentService {
             if (residentIds == null) {
                 residentIds = new HashSet<>();
             }
+            boolean isFirstResident = residentIds.isEmpty();
+
             residentIds.add(resident.getId());
             apartment.setResidentIds(residentIds);
 
+            if (isFirstResident && apartment.getStatus() == ApartmentStatus.VACANT) {
+                apartment.setStatus(ApartmentStatus.RENT);
+            }
+
             apartmentRepository.save(apartment);
+
+            if (isFirstResident){
+                if (apartment.getStatus() == ApartmentStatus.RENT) {
+                    billService.saveApartmentBill(apartment, "phí thuê căn hộ " + apartment.getApartmentNumber(), 300000L);
+                }
+                billService.saveApartmentBill(apartment, "phí dịch vụ căn hộ" + apartment.getApartmentNumber(), 10000L);
+                billService.saveApartmentBill(apartment, "phí quản lý căn hộ" + apartment.getApartmentNumber(), 7000L);
+            }
         }
     }
     public void updateResident(Resident resident, ResidentDTO userDTO) {
@@ -117,33 +144,12 @@ public class ApartmentService {
 
     public void deleteResident(Resident resident) {
         Set<String> apartmentNumbers = resident.getApartmentNumbers();
-        for (String apartmentNumber : apartmentNumbers) {
-            Apartment apartment = getApartmentByNumber(apartmentNumber);
-
-            Set<Long> residentIds = apartment.getResidentIds();
-            if (residentIds != null) {
-                residentIds.remove(resident.getId());
-                apartment.setResidentIds(residentIds);
-
-                apartmentRepository.save(apartment);
-            }
-        }
+        deleteResident(apartmentNumbers, resident);
     }
 
     public void updateResident(Resident resident) {
         Set<String> apartmentNumbers = resident.getApartmentNumbers();
-        for (String apartmentNumber : apartmentNumbers) {
-            Apartment apartment = getApartmentByNumber(apartmentNumber);
-
-            Set<Long> residentIds = apartment.getResidentIds();
-            if (residentIds == null) {
-                residentIds = new HashSet<>();
-            }
-            residentIds.add(resident.getId());
-            apartment.setResidentIds(residentIds);
-
-            apartmentRepository.save(apartment);
-        }
+        updateResident(apartmentNumbers, resident);
     }
 
     // Xóa căn hộ theo ID

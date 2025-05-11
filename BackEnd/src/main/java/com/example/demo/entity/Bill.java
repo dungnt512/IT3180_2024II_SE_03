@@ -42,4 +42,28 @@ public class Bill {
 
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
+    
+    @Column(name = "qr_code_url")
+    private String qrCodeUrl;
+    
+    @Column(name = "transaction_id")
+    private String transactionId;
+    
+    @Column(name = "last_check_time")
+    private LocalDateTime lastCheckTime;
+    
+    @Column(name = "payment_error")
+    private String paymentError;
+
+    @Column(name = "payment_reference_code")
+    private String paymentReferenceCode;
+
+    public boolean isPaid() {
+        return this.status == BillStatus.PAID;
+    }
+
+
+    public void markAsPaid() {
+        this.status = BillStatus.PAID;
+    }
 }

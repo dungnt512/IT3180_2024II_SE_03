@@ -43,7 +43,7 @@ const ChangePassModal = ({ isOpen, onClose, mode, userData, onSubmit, error }) =
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} size="5xl">
+    <Modal isOpen={isOpen} onClose={onClose} size="xl">
       <ModalOverlay />
       <ModalContent>
         <ModalHeader>

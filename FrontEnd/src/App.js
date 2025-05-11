@@ -9,9 +9,12 @@ import initialTheme from './theme/theme';
 import { useState, useEffect } from 'react';
 import AuthGuard from "./authguard/AuthGuard"; // Import AuthGuard
 
+import { useLocation } from 'react-router-dom';
+
 export default function Main() {
   const [currentTheme, setCurrentTheme] = useState(initialTheme);
   const [role, setRole] = useState(null);
+  const location = useLocation();
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -35,7 +38,7 @@ export default function Main() {
         <Route path="auth/*" element={<AuthLayout />} />
 
         {/* Bọc admin và user bằng AuthGuard đúng cách */}
-        <Route 
+        <Route key={location.pathname}
           path="admin/*"
           element={
             <AuthGuard>

@@ -28,6 +28,7 @@ public class HomeSecurity {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/auth/**", "/user/**").permitAll()
                 .requestMatchers("/api/admin/**").hasAuthority("ROLE_ADMIN")
+                .requestMatchers("/api/parking-rentals/**").permitAll()
                 .anyRequest().authenticated()
             )
             .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)

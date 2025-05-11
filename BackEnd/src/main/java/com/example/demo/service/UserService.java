@@ -14,7 +14,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -49,10 +48,9 @@ public class UserService {
         user.setResidentId(resident.getId()); // Lấy ID sau khi lưu
         user.setName(request.getName());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
-
+        
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
         user.setDateCreated(LocalDateTime.now().format(formatter));
-        
         userRepository.save(user);
     }
     public void addUser(ManualUserDTO request) {
@@ -69,10 +67,8 @@ public class UserService {
         user.setName(request.getName());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setRole(request.getRole());
-
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
         user.setDateCreated(LocalDateTime.now().format(formatter));
-        
         userRepository.save(user);
     }
 
@@ -133,26 +129,30 @@ public class UserService {
         return false;
     }
 
+
     public String changePassword(Long userId, String oldPassword, String newPassword) {
         User user = userRepository.findById(userId).orElse(null);
-        System.out.println("old pass from users : " +  oldPassword);
-        System.out.println("old pass from database : " + user.getPassword());
 
         if (user == null) {
             return "error_user_not_found";
         }
 
+        // Debug thông tin
+        System.out.println("Stored Password (DB): " + user.getPassword());
+        System.out.println("Input Old Password: " + (String)(oldPassword));
+
+        // Sử dụng matches() để kiểm tra mật khẩu
         if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
+            System.out.println("❌ Mật khẩu cũ không đúng!");
             return "error_wrong_old_password";
         }
 
+        // Đổi mật khẩu mới
         user.setPassword(passwordEncoder.encode(newPassword));
         userRepository.save(user);
+        System.out.println("✅ Mật khẩu đã thay đổi thành công!");
         return "success";
     }
-
-
-
     public User findById(Long id) {
         return userRepository.findById(id).orElse(null);
     }

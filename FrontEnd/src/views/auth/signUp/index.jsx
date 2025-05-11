@@ -53,6 +53,8 @@ import { FcGoogle } from 'react-icons/fc';
 import { MdOutlineRemoveRedEye } from 'react-icons/md';
 import { RiEyeCloseLine } from 'react-icons/ri';
 
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
+
 function SignUp() {
   // Chakra color mode
   const navigate = useNavigate(); // 🔹 Phải khai báo useNavigate() ở đây
@@ -116,7 +118,7 @@ function SignUp() {
       'Sending JSON to backend:',
       JSON.stringify(formattedData, null, 2)
     );
-      const response = await fetch('https://backend-production-de57.up.railway.app/api/auth/register', {
+      const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formattedData),
@@ -129,7 +131,7 @@ function SignUp() {
       // Nếu đăng ký thành công, chuyển hướng
       if (rawData.message === 'User saved to session successfully!') {
 
-      const resendResponse = await fetch('https://backend-production-de57.up.railway.app/api/auth/resend-otp', {
+      const resendResponse = await fetch(`${API_BASE_URL}/api/auth/resend-otp`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           credentials: 'include', // Đảm bảo session được gửi đi

@@ -51,7 +51,7 @@ import illustration from 'assets/img/auth/auth.png';
 import { FcGoogle } from 'react-icons/fc';
 import { MdOutlineRemoveRedEye } from 'react-icons/md';
 import { RiEyeCloseLine } from 'react-icons/ri';
-
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 // 🔹 Hàm kiểm tra token hết hạn
 const isTokenExpired = (token) => {
   try {
@@ -91,7 +91,7 @@ function SignIn() {
     console.log('Data sent to backend:', JSON.stringify(requestBody, null, 2)); // ✅ Log the sent data
   
     try {
-      const resendResponse = await fetch('https://backend-production-de57.up.railway.app/api/auth/forgot-password', {
+      const resendResponse = await fetch(`${API_BASE_URL}/api/auth/forgot-password`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include', // Ensure session is sent

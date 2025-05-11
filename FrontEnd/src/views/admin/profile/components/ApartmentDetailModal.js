@@ -172,7 +172,7 @@ import {
                     mb="24px"
                     fontWeight="500"
                     size="lg"
-                    value={formData.area}
+                    value={formData.dateCreated}
                     onChange={handleChange}
                     isReadOnly={true}
                   />

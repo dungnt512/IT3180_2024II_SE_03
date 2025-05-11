@@ -33,7 +33,7 @@ import AppartmentModal from './AppartmentModal';
 import columnsDataIcon from './AppartmentIconButton';
 import UserListModal from './UserListModal';
 const columnHelper = createColumnHelper();
-
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 const activateAccount = async (globalId, toast) => {
   try {
     const token = localStorage.getItem('token'); // Lấy token từ localStorage
@@ -43,7 +43,7 @@ const activateAccount = async (globalId, toast) => {
     }
 
     const response = await axios.post(
-      `https://backend-production-de57.up.railway.app/admin/activate/${globalId}`,
+      `${API_BASE_URL}/admin/activate/${globalId}`,
       {}, // Body rỗng
       {
         headers: {
@@ -269,7 +269,7 @@ export default function ColumnTable({ tableData, columnsConfig, refreshData }) {
   const handleSubmit = async (formData) => {
     if (mode === 'create') {
       await submitUserData(
-        'https://backend-production-de57.up.railway.app/api/admin/apartment-list/add-apartment',
+        `${API_BASE_URL}/api/admin/apartment-list/add-apartment`,
         'POST',
         formData,
         'Apartment created successfully',
@@ -277,7 +277,7 @@ export default function ColumnTable({ tableData, columnsConfig, refreshData }) {
       );
     } else if (mode === 'edit') {
       await submitUserData(
-        `https://backend-production-de57.up.railway.app/api/admin/apartment-list/edit-apartment`,
+        `${API_BASE_URL}/api/admin/apartment-list/edit-apartment`,
         'POST',
         formData,
         'Apartment updated successfully',
@@ -290,7 +290,7 @@ export default function ColumnTable({ tableData, columnsConfig, refreshData }) {
     try {
       const token = localStorage.getItem('token');
       const response = await fetch(
-        `https://backend-production-de57.up.railway.app/api/admin/apartment-list/residents/${id}`,
+        `${API_BASE_URL}/api/admin/apartment-list/residents/${id}`,
         {
           method: 'GET',
           headers: {
@@ -322,7 +322,7 @@ export default function ColumnTable({ tableData, columnsConfig, refreshData }) {
     try {
       const token = localStorage.getItem('token');
       const response = await fetch(
-        `https://backend-production-de57.up.railway.app/api/admin/apartment-list/edit-apartment/${id}`,
+        `${API_BASE_URL}/api/admin/apartment-list/edit-apartment/${id}`,
         {
           method: 'GET',
           headers: {

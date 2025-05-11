@@ -62,6 +62,7 @@ const isTokenExpired = (token) => {
   }
 };
 
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
 function SignIn() {
   // Chakra color mode
@@ -133,7 +134,7 @@ function SignIn() {
     console.log("Sending JSON to backend:", JSON.stringify(requestBody, null, 2));
   
     try {
-      const response = await fetch("https://backend-production-de57.up.railway.app/api/auth/login", {
+      const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(requestBody),
@@ -155,7 +156,7 @@ function SignIn() {
       console.log("Parsed Data:", data);
   
       if (!response.ok) {
-        throw new Error(data.message || "Your account have not been activated by admin");
+        throw new Error(data.message || "You provided wrong information!");
       }
   
       if (!data.token) {

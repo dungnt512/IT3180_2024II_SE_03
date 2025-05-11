@@ -16,20 +16,24 @@ import Card from "components/card/Card.js";
 // Assets
 import React, { useState } from "react";
 import { IoHeart, IoHeartOutline } from "react-icons/io5";
+import ModifiedAppartmentModal from "views/admin/dataTables/components/ModifiedApartmentModal"
+import ModifiedUserModal from "views/admin/dataTables/components/ModifiedUserModal"
+import ModifiedBillModal from "views/admin/dataTables/components/ModifiedBillModal"
 
 export default function NFT(props) {
-  const { image, name, author, bidders, download, currentbid } = props;
+  const { image, name, author, bidders, download, currentbid, isOpen, setIsOpen, mode } = props;
   const [like, setLike] = useState(false);
   const textColor = useColorModeValue("navy.700", "white");
   const textColorBid = useColorModeValue("brand.500", "white");
+
   return (
     <Card p='20px'>
       <Flex direction={{ base: "column" }} justify='center'>
         <Box mb={{ base: "20px", "2xl": "20px" }} position='relative'>
           <Image
             src={image}
-            w={{ base: "100%", "3xl": "100%" }}
-            h={{ base: "100%", "3xl": "100%" }}
+            w="300px"  // Cố định chiều rộng là 300px
+            h="200px"  // Cố định chiều cao là 200px
             borderRadius='20px'
           />
           <Button
@@ -94,7 +98,7 @@ export default function NFT(props) {
               </Text>
             </Flex>
             <AvatarGroup
-              max={3}
+              max={4}
               color={textColorBid}
               size='sm'
               mt={{
@@ -122,7 +126,6 @@ export default function NFT(props) {
             }}
             mt='25px'>
             <Text fontWeight='700' fontSize='sm' color={textColorBid}>
-              Current Bid: {currentbid}
             </Text>
             <Link
               href={download}
@@ -140,13 +143,34 @@ export default function NFT(props) {
                 fontWeight='500'
                 borderRadius='70px'
                 px='24px'
-                py='5px'>
-                Place Bid
+                py='5px'
+                onClick={() => setIsOpen(true)}>
+                View
               </Button>
             </Link>
           </Flex>
         </Flex>
       </Flex>
+      {mode === "apartment" && (
+  <ModifiedAppartmentModal
+    isOpen={isOpen}
+    onClose={() => setIsOpen(false)}
+  />
+)}
+
+{mode === "user" && (
+  <ModifiedUserModal
+    isOpen={isOpen}
+    onClose={() => setIsOpen(false)}
+  />
+)}
+
+{mode === "bill" && (
+  <ModifiedBillModal
+    isOpen={isOpen}
+    onClose={() => setIsOpen(false)}
+  />
+)}
     </Card>
   );
 }

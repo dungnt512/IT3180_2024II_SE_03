@@ -51,7 +51,7 @@ import illustration from 'assets/img/auth/auth.png';
 import { FcGoogle } from 'react-icons/fc';
 import { MdOutlineRemoveRedEye } from 'react-icons/md';
 import { RiEyeCloseLine } from 'react-icons/ri';
-
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 // 🔹 Hàm kiểm tra token hết hạn
 const isTokenExpired = (token) => {
   try {
@@ -120,7 +120,7 @@ function SignIn() {
     console.log('Data sent to backend:', JSON.stringify(requestBody, null, 2));
 
     try {
-        const response = await fetch('https://backend-production-de57.up.railway.app/api/auth/reset-password', {
+        const response = await fetch(`${API_BASE_URL}/api/auth/reset-password`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             credentials: 'include', 

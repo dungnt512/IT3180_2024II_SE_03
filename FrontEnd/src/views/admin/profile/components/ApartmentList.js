@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import UserListModal from './UserListModal';
 import BillListModal from './BillListModal';
 import AppartmentModal from "./ApartmentDetailModal";
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 const ApartmentList = () => {
   const [apartmentNumbers, setApartmentNumbers] = useState([]);
   const [residents, setResidents] = useState([]);
@@ -27,7 +28,7 @@ const ApartmentList = () => {
       try {
         console.log('Đang fetch');
         const token = localStorage.getItem("token");
-        const response = await fetch("https://backend-production-de57.up.railway.app/api/user/home", {
+        const response = await fetch(`${API_BASE_URL}/api/user/home`, {
           method: "GET",
           headers: {
             "Authorization": `Bearer ${token}`,
@@ -48,7 +49,7 @@ const ApartmentList = () => {
   const handleViewResidents = async (apartmentNumber) => {
     try {
       const token = localStorage.getItem("token");
-      const response = await fetch(`https://backend-production-de57.up.railway.app/api/user/apartment-detail?apartmentNumber=${apartmentNumber}`, {
+      const response = await fetch(`${API_BASE_URL}/api/user/apartment-detail?apartmentNumber=${apartmentNumber}`, {
         method: "GET",
         headers: {
           "Authorization": `Bearer ${token}`,
@@ -68,7 +69,7 @@ const ApartmentList = () => {
     try {
       console.log("newnew")
       const token = localStorage.getItem("token");
-      const response = await fetch(`https://backend-production-de57.up.railway.app/api/user/apartment-detail?apartmentNumber=${apartmentNumber}`, {
+      const response = await fetch(`${API_BASE_URL}/api/user/apartment-detail?apartmentNumber=${apartmentNumber}`, {
         method: "GET",
         headers: {
           "Authorization": `Bearer ${token}`,
@@ -88,7 +89,7 @@ const ApartmentList = () => {
   const handleViewBill = async (apartmentNumber) => {
     try {
       const token = localStorage.getItem("token");
-      const response = await fetch(`https://backend-production-de57.up.railway.app/api/user/apartment-detail?apartmentNumber=${apartmentNumber}`, {
+      const response = await fetch(`${API_BASE_URL}/api/user/apartment-detail?apartmentNumber=${apartmentNumber}`, {
         method: "GET",
         headers: {
           "Authorization": `Bearer ${token}`,

@@ -32,7 +32,7 @@ import { MdCancel, MdCheckCircle } from 'react-icons/md';
 import UserModal from './UserModal';
 import columnsIcon from './IconButton';
 const columnHelper = createColumnHelper();
-
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 const activateAccount = async (globalId, toast) => {
   try {
     const token = localStorage.getItem('token'); // Lấy token từ localStorage
@@ -42,7 +42,7 @@ const activateAccount = async (globalId, toast) => {
     }
 
     const response = await axios.post(
-      `https://backend-production-de57.up.railway.app/admin/activate/${globalId}`,
+      `${API_BASE_URL}/admin/activate/${globalId}`,
       {}, // Body rỗng
       {
         headers: {
@@ -274,7 +274,7 @@ export default function ColumnTable({ tableData, columnsConfig, refreshData }) {
   
     if (mode === 'create') {
       await submitUserData(
-        'https://backend-production-de57.up.railway.app/api/admin/users/add',
+        `${API_BASE_URL}/api/admin/users/add`,
         'POST',
         formData,
         'User created successfully',
@@ -282,7 +282,7 @@ export default function ColumnTable({ tableData, columnsConfig, refreshData }) {
       );
     } else if (mode === 'edit') {
       await submitUserData(
-        `https://backend-production-de57.up.railway.app/api/admin/users/edit/${idEdit}`,
+        `${API_BASE_URL}/api/admin/users/edit/${idEdit}`,
         'POST',
         updatedFormData,
         'User updated successfully',
@@ -295,7 +295,7 @@ export default function ColumnTable({ tableData, columnsConfig, refreshData }) {
     try {
       const token = localStorage.getItem('token');
       const response = await fetch(
-        `https://backend-production-de57.up.railway.app/api/admin/users/resident-info/${id}`,
+        `${API_BASE_URL}/api/admin/users/resident-info/${id}`,
         {
           method: 'GET',
           headers: {
@@ -328,7 +328,7 @@ export default function ColumnTable({ tableData, columnsConfig, refreshData }) {
     try {
       const token = localStorage.getItem('token');
       const response = await fetch(
-        `https://backend-production-de57.up.railway.app/api/admin/users/edit/${id}`,
+        `${API_BASE_URL}/api/admin/users/edit/${id}`,
         {
           method: 'GET',
           headers: {

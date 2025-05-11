@@ -33,7 +33,7 @@ import BillModal from './BillModal';
 import columnsBillIcon from './BillIconButton';
 import UserListModal from './UserListModal';
 const columnHelper = createColumnHelper();
-
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 const activateAccount = async (globalId, toast) => {
   try {
     const token = localStorage.getItem('token'); // Lấy token từ localStorage
@@ -43,7 +43,7 @@ const activateAccount = async (globalId, toast) => {
     }
 
     const response = await axios.post(
-      `https://backend-production-de57.up.railway.app/admin/activate/${globalId}`,
+      `${API_BASE_URL}//admin/activate/${globalId}`,
       {}, // Body rỗng
       {
         headers: {
@@ -167,7 +167,7 @@ export default function ColumnTable({ tableData, columnsConfig, refreshData }) {
   const [error, setError] = React.useState('');
   // Phân trang
   const [currentPage, setCurrentPage] = React.useState(1);
-  const [isVisible, setIsVisible] = React.useState(false); // Trạng thái hiển thị bảng
+  const [isVisible, setIsVisible] = React.useState(true); // Trạng thái hiển thị bảng
   const rowsPerPage = 5;
   const [idEdit, setIdEdit] = React.useState(0);
   const [mode, setMode] = React.useState('');
@@ -269,7 +269,7 @@ export default function ColumnTable({ tableData, columnsConfig, refreshData }) {
   const handleSubmit = async (formData) => {
     if (mode === 'create') {
       await submitUserData(
-        'https://backend-production-de57.up.railway.app/api/admin/bills',
+        `${API_BASE_URL}//api/admin/bills`,
         'POST',
         formData,
         'Bill added successfully',
@@ -277,7 +277,7 @@ export default function ColumnTable({ tableData, columnsConfig, refreshData }) {
       );
     } else if (mode === 'edit') {
       await submitUserData(
-        `https://backend-production-de57.up.railway.app/api/admin/bills/edit/${idEdit}`,
+        `${API_BASE_URL}/api/admin/bills/edit/${idEdit}`,
         'PUT',
         formData,
         'Bill updated successfully',
@@ -289,7 +289,7 @@ export default function ColumnTable({ tableData, columnsConfig, refreshData }) {
     try {
       const token = localStorage.getItem('token');
       const response = await fetch(
-        `https://backend-production-de57.up.railway.app/api/admin/bills/${id}`,
+        `${API_BASE_URL}/api/admin/bills/${id}`,
         {
           method: 'GET',
           headers: {
@@ -322,7 +322,7 @@ export default function ColumnTable({ tableData, columnsConfig, refreshData }) {
     try {
       const token = localStorage.getItem('token');
       const response = await fetch(
-        `https://backend-production-de57.up.railway.app/api/admin/bills/${id}`,
+        `${API_BASE_URL}/api/admin/bills/${id}`,
         {
           method: 'GET',
           headers: {
@@ -457,18 +457,6 @@ export default function ColumnTable({ tableData, columnsConfig, refreshData }) {
           </Button>
         </Flex>
         <Flex align="center">
-          <Button
-            variant="darkBrand"
-            color="white"
-            fontSize="sm"
-            fontWeight="500"
-            borderRadius="10px"
-            px="15px"
-            py="5px"
-            onClick={() => setIsVisible(!isVisible)} // Toggle hiển thị bảng
-          >
-            {isVisible ? 'Hide Table' : 'Show Table'}
-          </Button>
         </Flex>
       </Flex>
 
@@ -478,7 +466,7 @@ export default function ColumnTable({ tableData, columnsConfig, refreshData }) {
           {/* Thanh tìm kiếm theo Global ID */}
           <Box px="25px" mb="12px">
             <Input
-              placeholder="Search by username..."
+              placeholder="Search by bill name..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               size="md"

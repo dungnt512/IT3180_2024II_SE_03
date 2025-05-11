@@ -4,7 +4,7 @@ import { Icon, IconButton, Spinner, Flex, Text } from '@chakra-ui/react';
 import { createColumnHelper } from '@tanstack/react-table';
 
 const columnHelper = createColumnHelper();
-
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 const ActionsCell = ({ row, setData, toast, handleEdit, handleView }) => {
   const [status, setStatus] = useState('idle'); // "idle" | "loading" | "success"
 
@@ -17,7 +17,7 @@ const ActionsCell = ({ row, setData, toast, handleEdit, handleView }) => {
         return;
       }
 
-      await fetch(`https://backend-production-de57.up.railway.app/api/admin/bills/${row.id}`, {
+      await fetch(`${API_BASE_URL}/api/admin/bills/${row.id}`, {
         method: 'DELETE',
         headers: {
           Authorization: `Bearer ${token}`,

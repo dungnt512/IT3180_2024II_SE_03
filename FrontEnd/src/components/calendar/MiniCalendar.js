@@ -25,6 +25,7 @@ export default function MiniCalendar(props) {
         value={value}
         selectRange={selectRange}
         view={"month"}
+        locale="en-US" // 🔥 Chỉnh ngôn ngữ về tiếng Anh
         tileContent={<Text color='brand.500'></Text>}
         prevLabel={<Icon as={MdChevronLeft} w='24px' h='24px' mt='4px' />}
         nextLabel={<Icon as={MdChevronRight} w='24px' h='24px' mt='4px' />}

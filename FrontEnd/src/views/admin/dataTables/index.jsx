@@ -33,7 +33,7 @@ import {
   columnsBillDataColumns,
 } from "views/admin/dataTables/variables/columnsData";
 import React from "react";
-
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 export default function Settings() {
   // Chakra Color Mode
   const [tableDataColumns, setTableDataColumns] = useState([]);
@@ -49,7 +49,7 @@ export default function Settings() {
           return;
         }
   
-        const response = await axios.get("https://backend-production-de57.up.railway.app/admin/home", {
+        const response = await axios.get(`${API_BASE_URL}/admin/home`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -73,7 +73,7 @@ export default function Settings() {
           return;
         }
   
-        const response = await axios.get("https://backend-production-de57.up.railway.app/api/admin/apartment-list", {
+        const response = await axios.get(`${API_BASE_URL}/api/admin/apartment-list`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -97,7 +97,7 @@ export default function Settings() {
           return;
         }
   
-        const response = await axios.get("https://backend-production-de57.up.railway.app/api/admin/bills", {
+        const response = await axios.get(`${API_BASE_URL}/api/admin/bills`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },

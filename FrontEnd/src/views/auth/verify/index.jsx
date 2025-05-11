@@ -61,7 +61,7 @@ const isTokenExpired = (token) => {
     return true; // Token không hợp lệ => coi như hết hạn
   }
 };
-
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 function SignIn() {
   // Chakra color mode
   const navigate = useNavigate(); // 🔹 Phải khai báo useNavigate() ở đây
@@ -111,7 +111,7 @@ function SignIn() {
     console.log('Data sent to backend:', JSON.stringify(requestBody, null, 2)); // ✅ Log the sent data
   
     try {
-      const resendResponse = await fetch('https://backend-production-de57.up.railway.app/api/auth/verify-otp', {
+      const resendResponse = await fetch(`${API_BASE_URL}/api/auth/verify-otp`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include', // Ensure session is sent
@@ -185,7 +185,7 @@ function SignIn() {
   };
   const handleResend = async () => {
     const resendResponse = await fetch(
-      'https://backend-production-de57.up.railway.app/api/auth/resend-otp',
+      `${API_BASE_URL}/api/auth/resend-otp`,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

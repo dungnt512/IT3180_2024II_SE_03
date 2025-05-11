@@ -1,5 +1,6 @@
 package com.example.demo.dto;
 
+import com.example.demo.enums.ApartmentStatus;
 import com.example.demo.validation.UniqueNumber;
 import jakarta.validation.constraints.*;
 import lombok.*;
@@ -26,4 +27,7 @@ public class ApartmentDTO {
     @NotBlank(message = "Diện tích là cần thiết")
     @Min(value = 10, message = "vui lòng nhập vào diện tích hợp lệ")
     private Double area;
+
+    @NotBlank(message = "Trạng thái l cần thiết")
+    private ApartmentStatus status;
 }

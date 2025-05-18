@@ -31,6 +31,12 @@ public class Notification {
     @Column(nullable = false)
     private String message;
 
+    @Column
+    private String linkHeader;
+    @Column
+    private String linkAPI;
+
+
     @Column(name = "is_read", nullable = false)
     private boolean read;
 

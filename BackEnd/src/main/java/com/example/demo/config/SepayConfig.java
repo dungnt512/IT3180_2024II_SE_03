@@ -5,7 +5,7 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class SepayConfig {
-    
+
     @Value("${sepay.api.url}")
     private String apiUrl;
     
@@ -20,6 +20,13 @@ public class SepayConfig {
     
     @Value("${sepay.account.bank}")
     private String accountBank;
+
+    @Value("${sepay.ip.allow}")
+    private String ipAllow;
+
+    public String getIpAllow() {
+        return ipAllow;
+    }
 
     public String getApiUrl() {
         return apiUrl;

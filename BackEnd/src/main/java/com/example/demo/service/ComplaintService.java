@@ -1,4 +1,5 @@
 package com.example.demo.service;
+
 import com.example.demo.dto.BillDTO;
 import com.example.demo.entity.Apartment;
 import com.example.demo.entity.Complaint;
@@ -64,7 +65,7 @@ public class ComplaintService {
 
         // Tạo nội dung thông báo
         String notificationMessage = String.format(
-                "A new complaint from %s [Apartment %s]: %s",
+                "Có khiếu nại mới từ %s [phòng số %s]: %s",
                 complainant.getFullName(),
                 complainant.getApartmentNumbers(),
                 complaint.getTitle()
@@ -80,7 +81,9 @@ public class ComplaintService {
         for (Resident admin : admins) {
             notificationService.createNotification(
                     admin.getId(),
-                    notificationMessage
+                    notificationMessage,
+                    "Complaint: " + complaint.getTitle(),
+                    "/admin/complaints/"
             );
         }
     }
@@ -93,13 +96,15 @@ public class ComplaintService {
         Resident complainant = complaint.getResident();
 
         String notificationMessage = String.format(
-                "Your complaint is %s ",
+                "Khiếu nại của bạn %s ",
                 status.getDisplayName()
         );
 
         notificationService.createNotification(
                 complainant.getId(),
-                notificationMessage
+                notificationMessage,
+                "Complaint: " + complaint.getTitle(),
+                "/users/my-complaints/"
         );
     }
     public void deleteComplaintById(Long id) {

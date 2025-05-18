@@ -1,25 +1,25 @@
 package com.example.demo.service;
 
-import com.example.demo.dto.BillDTO;
-import com.example.demo.entity.Apartment;
-import com.example.demo.entity.Bill;
-import com.example.demo.entity.ParkingRental;
-import com.example.demo.entity.Resident;
-import com.example.demo.enums.BillStatus;
-import com.example.demo.enums.BillType;
-import com.example.demo.repository.ApartmentRepository;
-import com.example.demo.repository.BillRepository;
-import com.example.demo.repository.ResidentRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
+import java.util.stream.Collectors;
+
+import com.example.demo.entity.*;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.example.demo.dto.BillDTO;
+import com.example.demo.enums.BillStatus;
+import com.example.demo.enums.BillType;
+import com.example.demo.repository.ApartmentRepository;
+import com.example.demo.repository.BillRepository;
+import com.example.demo.repository.ResidentRepository;
 
 @Service
 public class BillService {
@@ -33,12 +33,146 @@ public class BillService {
     private ResidentRepository residentRepository;
     @Autowired
     private SepayQrService sepayQrService;
+    @Autowired
+    private ApartmentFeeUnitService apartmentFeeUnitService;
 
     public List<Bill> getAllBills() {
         return billRepository.findAll();
     }
     public Bill getBillById(Long id) {
         return billRepository.findById(id).orElse(null);
+    }
+    public Bill save(Bill bill) { return billRepository.save(bill); }
+    public void deleteBillById(Long id) { billRepository.deleteById(id); }
+
+    public List<Bill> filterBills(Map<String, Object> filterParams) {
+        String filterLogic = (String) filterParams.getOrDefault("filterLogic", "AND");
+        
+        String apartmentNumber = (String) filterParams.get("apartmentNumber");
+        String description = (String) filterParams.get("description");
+        Double minAmount = (Double) filterParams.get("minAmount");
+        Double maxAmount = (Double) filterParams.get("maxAmount");
+        List<BillType> billTypes = (List<BillType>) filterParams.get("billType");
+        LocalDate fromDueDate = (LocalDate) filterParams.get("fromDueDate");
+        LocalDate toDueDate = (LocalDate) filterParams.get("toDueDate");
+        List<BillStatus> statuses = (List<BillStatus>) filterParams.get("status");
+        List<Integer> floors = (List<Integer>) filterParams.get("floors");
+
+        if ("OR".equalsIgnoreCase(filterLogic)) {
+            Set<Bill> results = new HashSet<>();
+            
+            if (apartmentNumber != null && !apartmentNumber.isEmpty()) {
+                results.addAll(billRepository.findByApartmentNumberContainingIgnoreCase(apartmentNumber));
+            }
+            
+            if (description != null && !description.isEmpty()) {
+                results.addAll(billRepository.findByDescriptionContainingIgnoreCase(description));
+            }
+            
+            if (minAmount != null) {
+                results.addAll(billRepository.findByAmountGreaterThanEqual(minAmount));
+            }
+            
+            if (maxAmount != null) {
+                results.addAll(billRepository.findByAmountLessThanEqual(maxAmount));
+            }
+            
+            if (billTypes != null && !billTypes.isEmpty()) {
+                results.addAll(billRepository.findByBillTypeIn(billTypes));
+            }
+            
+            if (fromDueDate != null) {
+                results.addAll(billRepository.findByDueDateGreaterThanEqual(fromDueDate));
+            }
+            
+            if (toDueDate != null) {
+                results.addAll(billRepository.findByDueDateLessThanEqual(toDueDate));
+            }
+            
+            if (statuses != null && !statuses.isEmpty()) {
+                results.addAll(billRepository.findByStatusIn(statuses));
+            }
+            
+            if (floors != null && !floors.isEmpty()) {
+                List<String> apartmentNumbersByFloors = apartmentRepository.findByFloorIn(floors).stream()
+                    .map(Apartment::getApartmentNumber)
+                    .collect(Collectors.toList());
+                
+                if (!apartmentNumbersByFloors.isEmpty()) {
+                    results.addAll(billRepository.findAll().stream()
+                        .filter(bill -> apartmentNumbersByFloors.contains(bill.getApartmentNumber()))
+                        .collect(Collectors.toList()));
+                }
+            }
+            
+            return new ArrayList<>(results);
+        } else {
+            Specification<Bill> spec = null;
+            
+            if (apartmentNumber != null && !apartmentNumber.isEmpty()) {
+                Specification<Bill> apartmentNumberSpec = (root, query, cb) ->
+                    cb.like(cb.lower(root.get("apartmentNumber")), "%" + apartmentNumber.toLowerCase() + "%");
+                spec = spec == null ? apartmentNumberSpec : spec.and(apartmentNumberSpec);
+            }
+            
+            if (description != null && !description.isEmpty()) {
+                Specification<Bill> descriptionSpec = (root, query, cb) ->
+                    cb.like(cb.lower(root.get("description")), "%" + description.toLowerCase() + "%");
+                spec = spec == null ? descriptionSpec : spec.and(descriptionSpec);
+            }
+            
+            if (minAmount != null) {
+                Specification<Bill> minAmountSpec = (root, query, cb) ->
+                    cb.greaterThanOrEqualTo(root.get("amount"), minAmount);
+                spec = spec == null ? minAmountSpec : spec.and(minAmountSpec);
+            }
+            
+            if (maxAmount != null) {
+                Specification<Bill> maxAmountSpec = (root, query, cb) ->
+                    cb.lessThanOrEqualTo(root.get("amount"), maxAmount);
+                spec = spec == null ? maxAmountSpec : spec.and(maxAmountSpec);
+            }
+            
+            if (billTypes != null && !billTypes.isEmpty()) {
+                Specification<Bill> billTypeSpec = (root, query, cb) ->
+                    root.get("billType").in(billTypes);
+                spec = spec == null ? billTypeSpec : spec.and(billTypeSpec);
+            }
+            
+            if (fromDueDate != null) {
+                Specification<Bill> fromDueDateSpec = (root, query, cb) ->
+                    cb.greaterThanOrEqualTo(root.get("dueDate"), fromDueDate);
+                spec = spec == null ? fromDueDateSpec : spec.and(fromDueDateSpec);
+            }
+            
+            if (toDueDate != null) {
+                Specification<Bill> toDueDateSpec = (root, query, cb) ->
+                    cb.lessThanOrEqualTo(root.get("dueDate"), toDueDate);
+                spec = spec == null ? toDueDateSpec : spec.and(toDueDateSpec);
+            }
+            
+            if (statuses != null && !statuses.isEmpty()) {
+                Specification<Bill> statusSpec = (root, query, cb) ->
+                    root.get("status").in(statuses);
+                spec = spec == null ? statusSpec : spec.and(statusSpec);
+            }
+            
+            if (floors != null && !floors.isEmpty()) {
+                List<String> apartmentNumbersByFloors = apartmentRepository.findByFloorIn(floors).stream()
+                    .map(Apartment::getApartmentNumber)
+                    .collect(Collectors.toList());
+                
+                if (!apartmentNumbersByFloors.isEmpty()) {
+                    Specification<Bill> floorSpec = (root, query, cb) ->
+                        root.get("apartmentNumber").in(apartmentNumbersByFloors);
+                    spec = spec == null ? floorSpec : spec.and(floorSpec);
+                } else {
+                    return new ArrayList<>();
+                }
+            }
+            
+            return spec == null ? billRepository.findAll() : billRepository.findAll(spec);
+        }
     }
 
     @Transactional
@@ -56,7 +190,7 @@ public class BillService {
         bill.setPaymentReferenceCode(sepayQrService.generateReferenceCode(bill));
         
         try {
-            String qrCodeUrl = sepayQrService.generateQrCodeUrl(bill);
+            String qrCodeUrl = sepayQrService.generateQrCodeUrl(bill, false);
             bill.setQrCodeUrl(qrCodeUrl);
             billRepository.save(bill);
         } catch (Exception e) {
@@ -64,7 +198,7 @@ public class BillService {
             billRepository.save(bill);
         }
         
-        sendBillNotification(billDTO);
+        sendBillNotification(bill);
         
         Apartment apartment = apartmentRepository.findByApartmentNumber(billDTO.getApartmentNumber());
         if (apartment != null) {
@@ -90,9 +224,10 @@ public class BillService {
         long days = ChronoUnit.DAYS.between(rental.getStartDate(), rental.getEndDate());
 
         // Tính phí
+        ApartmentFeeUnit apartmentFeeUnit = apartmentFeeUnitService.getFeeUnit();
         long dailyRate = switch (rental.getParkingLot().getType()) {
-            case CAR -> 100_000L;
-            case MOTORBIKE -> 20_000L;
+            case CAR -> apartmentFeeUnit.getCarParkingFeeByHour();
+            case MOTORBIKE -> apartmentFeeUnit.getMotorbikeParkingFeeByHour();
             default -> throw new IllegalArgumentException("Loại phương tiện không hợp lệ");
         };
 
@@ -105,7 +240,7 @@ public class BillService {
         // Gán mã tham chiếu và tạo mã QR
         bill.setPaymentReferenceCode(sepayQrService.generateReferenceCode(bill));
         try {
-            String qrCodeUrl = sepayQrService.generateQrCodeUrl(bill);
+            String qrCodeUrl = sepayQrService.generateQrCodeUrl(bill, false);
             bill.setQrCodeUrl(qrCodeUrl);
             billRepository.save(bill);
         } catch (Exception e) {
@@ -146,7 +281,7 @@ public class BillService {
         // Gán mã tham chiếu và tạo mã QR
         bill.setPaymentReferenceCode(sepayQrService.generateReferenceCode(bill));
         try {
-            String qrCodeUrl = sepayQrService.generateQrCodeUrl(bill);
+            String qrCodeUrl = sepayQrService.generateQrCodeUrl(bill, false);
             bill.setQrCodeUrl(qrCodeUrl);
             billRepository.save(bill);
         } catch (Exception e) {
@@ -193,6 +328,9 @@ public class BillService {
     public Set<Bill> findByIdIn(Set<Long> billIds) {
         return billRepository.findByIdIn(billIds);
     }
+    public Optional<Bill> findById(Long id) {
+        return billRepository.findById(id);
+    }
 
     private void sendBillNotification(BillDTO billDTO) {
         Apartment apartment = apartmentRepository.findByApartmentNumber(billDTO.getApartmentNumber());
@@ -203,9 +341,10 @@ public class BillService {
         List<Resident> residents = residentRepository.findAllById(apartment.getResidentIds());
 
         String notificationMessage = String.format(
-                "Hóa đơn %s mới cho căn hộ %s. Số tiền: %,.0f VNĐ. Hạn thanh toán: %s",
+                "Hóa đơn %s mới cho căn hộ %s: %s. Số tiền: %,.0f VNĐ. Hạn thanh toán: %s",
                 billDTO.getBillType(),
                 billDTO.getApartmentNumber(),
+                billDTO.getDescription(),
                 billDTO.getAmount(),
                 billDTO.getDueDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
         );
@@ -213,7 +352,9 @@ public class BillService {
         for (Resident resident : residents) {
             notificationService.createNotification(
                     resident.getId(),
-                    notificationMessage
+                    notificationMessage,
+                    "Bill: " + billDTO.getDescription(),
+                    "/user/apartment-detail"
             );
         }
     }
@@ -237,7 +378,9 @@ public class BillService {
         for (Resident resident : residents) {
             notificationService.createNotification(
                     resident.getId(),
-                    notificationMessage
+                    notificationMessage,
+                    "Bill: " + bill.getDescription(),
+                    "/bills/" + bill.getId() + "/payment"
             );
         }
     }
@@ -254,7 +397,7 @@ public class BillService {
         try {
             bill.setPaymentReferenceCode(sepayQrService.generateReferenceCode(bill));
             
-            String qrCodeUrl = sepayQrService.generateQrCodeUrl(bill);
+            String qrCodeUrl = sepayQrService.generateQrCodeUrl(bill, false);
             bill.setQrCodeUrl(qrCodeUrl);
             bill.setPaymentError(null);
             billRepository.save(bill);
@@ -266,7 +409,15 @@ public class BillService {
         
         return bill;
     }
-    
+
+    public void regenerateAllQrCode() {
+        List<Bill> bills = billRepository.findAll();
+        for (Bill bill : bills) {
+            String qrCode = sepayQrService.generateQrCodeUrl(bill, true);
+            bill.setQrCodeUrl(qrCode);
+            billRepository.save(bill);
+        }
+    }
 
     public void sendPaymentConfirmation(Bill bill) {
         Apartment apartment = apartmentRepository.findByApartmentNumber(bill.getApartmentNumber());
@@ -286,7 +437,9 @@ public class BillService {
         for (Resident resident : residents) {
             notificationService.createNotification(
                     resident.getId(),
-                    notificationMessage
+                    notificationMessage,
+                    "Bill: " + bill.getDescription(),
+                    "/user/apartment-detail"
             );
         }
     }
@@ -357,5 +510,58 @@ public class BillService {
         } catch (Exception e) {
             throw new RuntimeException("Lỗi khi kiểm tra thanh toán trên SePay: " + e.getMessage());
         }
+    }
+
+    @Scheduled(cron = "0 0 8 * * ?") // Chạy lúc 8 giờ sáng mỗi ngày
+    @Transactional
+    public void sendPaymentReminders() {
+        LocalDate today = LocalDate.now();
+        LocalDate reminderDate = today.plusDays(5);
+        
+        List<Bill> billsWithDueDateApproaching = billRepository.findBillsWithDueDateApproaching(reminderDate, BillStatus.UNPAID);
+        
+        System.out.println("Đang gửi nhắc nhở thanh toán cho " + billsWithDueDateApproaching.size() + " hóa đơn có hạn thanh toán vào " + reminderDate);
+        
+        for (Bill bill : billsWithDueDateApproaching) {
+            Apartment apartment = apartmentRepository.findByApartmentNumber(bill.getApartmentNumber());
+            if (apartment == null || apartment.getResidentIds() == null || apartment.getResidentIds().isEmpty()) {
+                continue;
+            }
+            
+            Set<Long> residentIds = apartment.getResidentIds();
+            if (residentIds != null && !residentIds.isEmpty()) {
+                String reminderMessage = String.format(
+                        "NHẮC NHỞ THANH TOÁN: Hóa đơn %s cho căn hộ %s sắp đến hạn. " +
+                        "Số tiền: %,.0f VNĐ. Hạn thanh toán: %s. Vui lòng thanh toán đúng hạn!",
+                        bill.getBillType(),
+                        bill.getApartmentNumber(),
+                        bill.getAmount(),
+                        bill.getDueDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
+                );
+                
+                for (Long residentId : residentIds) {
+                    notificationService.createNotification(residentId, reminderMessage,
+                            "Bill: " + bill.getDescription(), "/bills/" + bill.getId() + "/payment");
+                }
+                
+                System.out.println("Đã gửi nhắc nhở thanh toán cho hóa đơn ID: " + bill.getId());
+            }
+        }
+    }
+
+    public List<Bill> findByApartmentNumberAndStatus(String apartmentNumber, BillStatus billStatus) {
+        return billRepository.findByApartmentNumberAndStatus(apartmentNumber, billStatus);
+    }
+
+    public List<Bill> findAllById(List<Long> billIds) {
+        return billRepository.findAllById(billIds);
+    }
+
+    public List<Bill> findByPaymentReferenceCode(String billReferenceCode) {
+        return billRepository.findByPaymentReferenceCode(billReferenceCode);
+    }
+
+    public List<Bill> saveAll(List<Bill> bills) {
+        return billRepository.saveAll(bills);
     }
 }

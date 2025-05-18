@@ -1,10 +1,10 @@
 package com.example.demo.enums;
 
 public enum ComplaintStatus {
-    PENDING("Pending"),
-    IN_PROGRESS("In Progress"),
-    RESOLVED("Resolved"),
-    REJECTED("Rejected");
+    PENDING("Đang chờ xử lý"),
+    IN_PROGRESS("Đang xử lý"),
+    RESOLVED("Đã giải quyết"),
+    REJECTED("Đã từ chối");
 
     private final String displayName;
 

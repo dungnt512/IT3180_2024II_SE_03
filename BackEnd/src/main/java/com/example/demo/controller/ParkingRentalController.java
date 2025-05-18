@@ -22,7 +22,6 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/parking-rentals")
 @RequiredArgsConstructor
-@CrossOrigin
 public class ParkingRentalController {
 
     @Autowired

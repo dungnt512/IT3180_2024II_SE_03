@@ -51,7 +51,7 @@ export function SidebarLinks(props) {
         route.layout === "/auth" ||
         route.layout === "/user" ||
         route.layout === "/rtl")&&
-        route.icon // Chỉ hiển thị những route có icon
+        route.icon // Only display routes that have an icon
       ) {
         return (
           <NavLink key={index} to={route.layout + route.path}>

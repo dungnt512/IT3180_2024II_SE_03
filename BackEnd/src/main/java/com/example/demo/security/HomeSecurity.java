@@ -29,7 +29,13 @@ public class HomeSecurity {
                 .requestMatchers("/api/auth/**", "/user/**").permitAll()
                 .requestMatchers("/api/admin/**").hasAuthority("ROLE_ADMIN")
                 .requestMatchers("/api/parking-rentals/**").permitAll()
+                    .requestMatchers("/api/contribution-types/**").permitAll()
+                    .requestMatchers("/api/contribution-types/admin/**").hasAuthority("ROLE_ADMIN")
+                    .requestMatchers("/api/contributions/**").permitAll()
+                    .requestMatchers("/api/contributions/admin/**").hasAuthority("ROLE_ADMIN")
+                    .requestMatchers("/api/webhook/sepay").permitAll()
                 .anyRequest().authenticated()
+
             )
             .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
             .cors(cors -> cors.configurationSource(corsConfigurationSource())); // ✅ Gọi CORS config
@@ -40,10 +46,12 @@ public class HomeSecurity {
     @Bean
     CorsConfigurationSource corsConfigurationSource() { // ✅ Khai báo corsConfigurationSource() ở đây
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of("https://front-end-lyart-eight.vercel.app")); // ✅ Cho phép React truy cập
+        config.setAllowedOrigins(List.of("https://front-end-lyart-eight.vercel.app",
+                "http://localhost:3000", "http://192.168.2.4:3000")); // ✅ Cho phép React truy cập
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);
+        config.setExposedHeaders(List.of("Content-Disposition"));
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);

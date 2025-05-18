@@ -1,6 +1,7 @@
 package com.example.demo.dto;
 
 import com.example.demo.enums.ApartmentStatus;
+import com.example.demo.enums.ApartmentType;
 import com.example.demo.validation.UniqueNumber;
 import jakarta.validation.constraints.*;
 import lombok.*;
@@ -30,4 +31,6 @@ public class ApartmentDTO {
 
     @NotBlank(message = "Trạng thái l cần thiết")
     private ApartmentStatus status;
+
+    private ApartmentType type;
 }

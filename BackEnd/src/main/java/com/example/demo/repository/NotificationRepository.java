@@ -2,7 +2,6 @@ package com.example.demo.repository;
 
 import com.example.demo.entity.Notification;
 import com.example.demo.entity.Resident;
-import com.example.demo.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -19,4 +18,5 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
     void markAllAsRead(@Param("resident") Resident resident);
 
     List<Notification> findByResidentAndReadFalse(Resident resident);
+
 }

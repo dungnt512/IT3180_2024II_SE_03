@@ -30,6 +30,7 @@ import { useNavigate } from 'react-router-dom';
 import { useToast } from '@chakra-ui/react';
 import routes from 'routes';
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
+
 export default function HeaderLinks(props) {
   const { secondary } = props;
   const { colorMode, toggleColorMode } = useColorMode();
@@ -56,6 +57,7 @@ export default function HeaderLinks(props) {
     unreadCount: 0,
   });
   const [deletingIds, setDeletingIds] = useState({});
+  const [markAllStatus, setMarkAllStatus] = useState('idle'); // Thêm state cho Mark all read
 
   // Fetch notifications
   const fetchNotifications = useCallback(async () => {
@@ -104,6 +106,7 @@ export default function HeaderLinks(props) {
 
   // Handle mark all read
   const handleMarkAllRead = async () => {
+    setMarkAllStatus('processing');
     try {
       const token = localStorage.getItem('token');
       if (!token) return;
@@ -125,14 +128,21 @@ export default function HeaderLinks(props) {
         unreadCount: 0,
       }));
 
+      setMarkAllStatus('success');
       toast({
         title: 'Notifications marked as read',
         status: 'success',
         duration: 2000,
         isClosable: true,
       });
+
+      // Reset status sau 2 giây
+      setTimeout(() => {
+        setMarkAllStatus('idle');
+      }, 2000);
     } catch (error) {
       console.error('Error marking notifications as read:', error);
+      setMarkAllStatus('idle');
       toast({
         title: 'Error marking notifications as read',
         status: 'error',
@@ -199,21 +209,22 @@ export default function HeaderLinks(props) {
     }
   };
 
-  const handleNotificationClick = async (message, id, event) => {
+  const handleNotificationClick = async (notification, event) => {
     event.stopPropagation(); // Prevent menu from closing
   
+    const { id, linkHeader, linkAPI } = notification;
     const token = localStorage.getItem('token');
     if (!token) return;
   
     let role = null;
-  
+
     try {
       const decoded = jwtDecode(token);
       role = decoded.role || decoded?.authorities?.[0]?.authority || null;
     } catch (error) {
       console.error('Invalid token:', error);
     }
-  
+
     try {
       const response = await fetch(`${API_BASE_URL}/api/notifications/mark-as-read/${id}`, {
         method: 'PUT',
@@ -226,33 +237,25 @@ export default function HeaderLinks(props) {
   
       // Update UI
       setNotifications((prev) => {
-        const notification = prev.unreadNotifications.find((n) => n.id === id);
-        if (!notification) return prev;
+        const notif = prev.unreadNotifications.find((n) => n.id === id);
+        if (!notif) return prev;
         return {
           unreadNotifications: prev.unreadNotifications.filter((n) => n.id !== id),
-          readNotifications: [...prev.readNotifications, { ...notification, read: true }],
+          readNotifications: [...prev.readNotifications, { ...notif, read: true }],
           unreadCount: prev.unreadCount - 1,
         };
       });
   
-      // Hiển thị toast trước
-      toast({
-        title: 'Redirecting to complaint page...',
-        status: 'info',
-        duration: 2000,
-        isClosable: true,
-      });
-  
-      // Sau khi toast kết thúc mới điều hướng nếu là complaint
-      if (message.toLowerCase().includes('complaint')) {
+      if (linkHeader && linkAPI) {
+        toast({
+          title: `Redirecting to ${linkHeader}...`,
+          status: 'info',
+          duration: 2000,
+          isClosable: true,
+        });
+
         setTimeout(() => {
-          if (role === 'ROLE_ADMIN') {
-            // window.location.reload();
-            navigate('/admin/complaint');
-          } else {
-            // window.location.reload();
-            navigate('/user/complaint');
-          }
+          navigate(linkAPI);
         }, 2000); // Delay đúng bằng thời gian toast
       }
   
@@ -265,20 +268,20 @@ export default function HeaderLinks(props) {
         isClosable: true,
       });
 
-      if (message.toLowerCase().includes('complaint')) {
+      if (linkHeader && linkAPI) {
+        toast({
+          title: `Redirecting to ${linkHeader}...`,
+          status: 'info',
+          duration: 2000,
+          isClosable: true,
+        });
+
         setTimeout(() => {
-          if (role === 'ROLE_ADMIN') {
-            // window.location.reload();
-            navigate('/admin/complaint');
-          } else {
-            // window.location.reload();
-            navigate('/user/complaint');
-          }
-        }, 2000); // Delay đúng bằng thời gian toast
+          navigate(linkAPI);
+        }, 2000);
       }
     }
   };
-  
 
   const handleLogout = async () => {
     try {
@@ -373,15 +376,33 @@ export default function HeaderLinks(props) {
               Notifications
             </Text>
             {notifications.unreadCount > 0 && (
-              <Text
-                fontSize="sm"
-                fontWeight="500"
-                color={textColorBrand}
-                cursor="pointer"
-                onClick={handleMarkAllRead}
-              >
-                Mark all read
-              </Text>
+              <Flex align="center" onClick={handleMarkAllRead} cursor="pointer">
+                <Text
+                  fontSize="sm"
+                  fontWeight="500"
+                  color={textColorBrand}
+                  mr="8px"
+                >
+                  Mark all read
+                </Text>
+                <Icon
+                  as={
+                    markAllStatus === 'processing'
+                      ? CgSpinner
+                      : markAllStatus === 'success'
+                      ? FaCheckCircle
+                      : null
+                  }
+                  color={markAllStatus === 'success' ? 'green.500' : 'gray.500'}
+                  w="16px"
+                  h="16px"
+                  animation={
+                    markAllStatus === 'processing'
+                      ? 'spin 1s linear infinite'
+                      : undefined
+                  }
+                />
+              </Flex>
             )}
           </Flex>
           <Flex flexDirection="column" maxH="300px" overflowY="auto">
@@ -402,7 +423,7 @@ export default function HeaderLinks(props) {
                 mb="5px"
                 bg="gray.100"
                 position="relative"
-                onClick={(e) => handleNotificationClick(notification.message, notification.id, e)}
+                onClick={(e) => handleNotificationClick(notification, e)}
               >
                 <Flex direction="column">
                   <Text fontSize="sm" fontWeight="600" color={textColor}>
@@ -451,7 +472,7 @@ export default function HeaderLinks(props) {
                 borderRadius="8px"
                 mb="5px"
                 position="relative"
-                onClick={(e) => handleNotificationClick(notification.message, notification.id, e)}
+                onClick={(e) => handleNotificationClick(notification, e)}
               >
                 <Flex direction="column">
                   <Text fontSize="sm" color="gray.600">
@@ -506,7 +527,7 @@ export default function HeaderLinks(props) {
           />
         </MenuButton>
         <MenuList
-          box personallyShadow={shadow}
+          boxShadow={shadow}
           p="20px"
           me={{ base: '30px', md: 'unset' }}
           borderRadius="20px"

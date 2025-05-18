@@ -17,35 +17,35 @@ import java.util.*;
 @CrossOrigin
 public class UserApartmentDetailController {
 
-    @Autowired
-    private ApartmentService apartmentService;
+	@Autowired
+	private ApartmentService apartmentService;
 
-    @Autowired
-    private BillService billService;
+	@Autowired
+	private BillService billService;
 
-    @Autowired
-    private ResidentService residentService;
+	@Autowired
+	private ResidentService residentService;
 
-    @GetMapping
-    public ResponseEntity<?> getApartmentDetail(@RequestParam("apartmentNumber") String apartmentNumber) {
-        Apartment apartment = apartmentService.getApartmentByNumber(apartmentNumber);
+	@GetMapping
+	public ResponseEntity<?> getApartmentDetail(@RequestParam("apartmentNumber") String apartmentNumber) {
+		Apartment apartment = apartmentService.getApartmentByNumber(apartmentNumber);
 
-        if (apartment == null) {
-            return ResponseEntity.notFound().build();
-        }
+		if (apartment == null) {
+			return ResponseEntity.notFound().build();
+		}
 
-        // Lấy danh sách hóa đơn
-        Set<Bill> bills = billService.findByIdIn(apartment.getBillIds());
+		// Lấy danh sách hóa đơn
+		Set<Bill> bills = billService.findByIdIn(apartment.getBillIds());
 
-        // Lấy danh sách cư dân
-        Set<Resident> residents = residentService.findByIdIn(apartment.getResidentIds());
+		// Lấy danh sách cư dân
+		Set<Resident> residents = residentService.findByIdIn(apartment.getResidentIds());
 
-        // Đóng gói dữ liệu vào một Map để trả về JSON
-        Map<String, Object> response = new HashMap<>();
-        response.put("apartment", apartment);
-        response.put("bills", bills);
-        response.put("residents", residents);
+		// Đóng gói dữ liệu vào một Map để trả về JSON
+		Map<String, Object> response = new HashMap<>();
+		response.put("apartment", apartment);
+		response.put("bills", bills);
+		response.put("residents", residents);
 
-        return ResponseEntity.ok(response);
-    }
+		return ResponseEntity.ok(response);
+	}
 }

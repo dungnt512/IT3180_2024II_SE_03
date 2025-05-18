@@ -20,32 +20,25 @@ public class SepayQrService {
     private SepayConfig sepayConfig;
     
     public String generateReferenceCode(Bill bill) {
-        String randomPart = UUID.randomUUID().toString().substring(0, 8);
         String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
         String billId = (bill.getId() != null) ? bill.getId().toString() : "NEW";
-        String referenceCode = String.format("RF-%s-%s-%s", billId, timestamp, randomPart);
-        
+        String referenceCode = String.format("RF%s%s", billId, timestamp);
         return referenceCode;
     }
 
     public String generateInvoiceReferenceCode(Invoice invoice) {
-        String randomPart = UUID.randomUUID().toString().substring(0, 8);
-        
         String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
-        
         String invoiceId = (invoice.getId() != null) ? invoice.getId().toString() : "NEW";
-        
-        String referenceCode = String.format("INV-%s-%s-%s", invoiceId, timestamp, randomPart);
-        
+        String referenceCode = String.format("INV%s%s", invoiceId, timestamp);
         return referenceCode;
     }
-    
-    public String generateQrCodeUrl(Bill bill) {
+
+    public String generateQrCodeUrl(Bill bill, boolean forced) {
         String accountNumber = sepayConfig.getAccountNumber();
         String bankName = sepayConfig.getAccountBank();
         Double amount = bill.getAmount();
         
-        if (bill.getPaymentReferenceCode() == null || bill.getPaymentReferenceCode().isEmpty()) {
+        if (forced || bill.getPaymentReferenceCode() == null || bill.getPaymentReferenceCode().isEmpty()) {
             bill.setPaymentReferenceCode(generateReferenceCode(bill));
         }
         
@@ -69,12 +62,12 @@ public class SepayQrService {
         return qrCodeUrl;
     }
 
-    public String generateQrCodeUrl(Invoice invoice) {
+    public String generateQrCodeUrl(Invoice invoice, boolean forced) {
         String accountNumber = sepayConfig.getAccountNumber();
         String bankName = sepayConfig.getAccountBank();
-        Double amount = invoice.getTotalAmount();
+        Long amount = invoice.getTotalAmount();
         
-        if (invoice.getPaymentReferenceCode() == null || invoice.getPaymentReferenceCode().isEmpty()) {
+        if (forced || invoice.getPaymentReferenceCode() == null || invoice.getPaymentReferenceCode().isEmpty()) {
             invoice.setPaymentReferenceCode(generateInvoiceReferenceCode(invoice));
         }
         

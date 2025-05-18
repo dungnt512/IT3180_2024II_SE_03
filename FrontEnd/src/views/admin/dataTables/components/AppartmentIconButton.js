@@ -67,22 +67,6 @@ const ActionsCell = ({ row, setData, toast, handleEdit, handleView }) => {
         variant="ghost"
         onClick={() => handleEdit(row.id)}
       />
-      <IconButton
-        aria-label="Delete User"
-        icon={
-          status === 'loading' ? (
-            <Spinner size="sm" color="red.500" />
-          ) : status === 'success' ? (
-            <Icon as={MdCheckCircle} w="24px" h="24px" color="green.500" />
-          ) : (
-            <Icon as={MdDelete} w="24px" h="24px" color="red.500" />
-          )
-        }
-        size="sm"
-        variant="ghost"
-        onClick={handleDelete}
-        isDisabled={status === 'loading'}
-      />
     </Flex>
   );
 };

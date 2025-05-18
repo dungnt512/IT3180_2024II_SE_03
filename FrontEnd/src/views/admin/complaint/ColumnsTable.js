@@ -38,11 +38,11 @@ import {
   import axios from 'axios';
   import { MdCheckCircle, MdCancel, MdHourglassEmpty, MdAutorenew } from 'react-icons/md';
   import Card from 'components/card/Card';
-  import TableMenu from 'components/menu/TableMenu'; // Đổi tên để tránh xung đột với Menu của Chakra
-  
+  import TableMenu from 'components/menu/TableMenu'; // Renamed to avoid conflict with Chakra's Menu
+
   const columnHelper = createColumnHelper();
   const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
-  
+
   export default function ComplaintTable({ tableData, columnsConfig, refreshData }) {
     const [sorting, setSorting] = React.useState([]);
     const textColor = useColorModeValue('secondaryGray.900', 'white');
@@ -56,29 +56,29 @@ import {
     const [selectedContent, setSelectedContent] = React.useState('');
     const rowsPerPage = 5;
     const [searchTerm, setSearchTerm] = React.useState('');
-  
+
     const handleStatusChange = async (complaintId, newStatus) => {
         try {
           const token = localStorage.getItem('token');
           if (!token) {
             throw new Error('Authentication failed: No token found!');
           }
-      
+
           const response = await fetch(`${API_BASE_URL}/api/complaints/update-status?id=${complaintId}&status=${newStatus}`, {
             method: 'PUT',
             headers: {
               Authorization: `Bearer ${token}`,
             }
           });
-      
+
           let data = null;
           const contentType = response.headers.get('content-type');
-      
-          // Chỉ parse JSON nếu có body dạng JSON
+
+          // Only parse JSON if the body is in JSON format
           if (contentType && contentType.includes('application/json')) {
             data = await response.json();
           }
-      
+
           if (response.ok) {
             toast({
               title: 'Status Updated!',
@@ -102,7 +102,7 @@ import {
           });
         }
       };
-      
+
     React.useEffect(() => {
       if (Array.isArray(tableData)) {
         setOriginalData(tableData);
@@ -111,7 +111,7 @@ import {
         console.warn('tableData is not an array, skipping update');
       }
     }, [tableData]);
-  
+
     React.useEffect(() => {
       if (searchTerm.trim() === '') {
         setData(originalData);
@@ -126,7 +126,7 @@ import {
       }
       setCurrentPage(1);
     }, [searchTerm, originalData]);
-  
+
     const generateColumns = (columnsConfig) => {
       return columnsConfig.map(({ Header, accessor }) =>
         columnHelper.accessor(accessor, {
@@ -236,9 +236,9 @@ import {
         })
       );
     };
-  
+
     const columns = generateColumns(columnsConfig);
-  
+
     const table = useReactTable({
       data,
       columns,
@@ -247,12 +247,12 @@ import {
       getCoreRowModel: getCoreRowModel(),
       getSortedRowModel: getSortedRowModel(),
     });
-  
+
     const totalPages = Math.ceil(table.getRowModel().rows.length / rowsPerPage);
     const paginatedRows = table
       .getRowModel()
       .rows.slice((currentPage - 1) * rowsPerPage, currentPage * rowsPerPage);
-  
+
     return (
       <Card
         flexDirection="column"

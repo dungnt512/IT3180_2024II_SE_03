@@ -332,7 +332,7 @@ export default function ColumnTable({ tableData, columnsConfig, refreshData }) {
         },
       );
       const rawData = await response.json();
-      console.log('rawData = ', rawData);
+      console.log('rawData of ediiting = ', rawData);
       setNewUser(rawData);
       setMode('edit');
       setIdEdit(id);

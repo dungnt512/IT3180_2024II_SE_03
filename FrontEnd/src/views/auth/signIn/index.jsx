@@ -5,7 +5,7 @@
  | |_| | | | | |_) || |  / / | | |  \| | | | | || | 
  |  _  | |_| |  _ < | | / /| |_| | |\  | | |_| || |
  |_| |_|\___/|_| \_\___/____\___/|_| \_|  \___/|___|
-                                                                                                                                                                                                                                                                                                                                       
+
 =========================================================
 * Horizon UI - v1.1.0
 =========================================================
@@ -24,9 +24,9 @@
 import React, { useState, useEffect } from "react";
 import { useToast } from "@chakra-ui/react";
 import { NavLink } from "react-router-dom";
-import { useNavigate } from "react-router-dom"; // Thêm import này
+import { useNavigate } from "react-router-dom"; // Add this import
 import { jwtDecode } from "jwt-decode";
-import { WarningIcon } from "@chakra-ui/icons"; // Nhúng icon từ Chakra UI
+import { WarningIcon } from "@chakra-ui/icons"; // Import icon from Chakra UI
 // Chakra imports
 import {
   Box,
@@ -52,13 +52,13 @@ import { FcGoogle } from "react-icons/fc";
 import { MdOutlineRemoveRedEye } from "react-icons/md";
 import { RiEyeCloseLine } from "react-icons/ri";
 
-// 🔹 Hàm kiểm tra token hết hạn
+// 🔹 Function to check if token is expired
 const isTokenExpired = (token) => {
   try {
-    const payload = JSON.parse(atob(token.split(".")[1])); // Giải mã payload từ JWT
-    return payload.exp * 1000 < Date.now(); // So sánh thời gian hết hạn với thời gian hiện tại
+    const payload = JSON.parse(atob(token.split(".")[1])); // Decode payload from JWT
+    return payload.exp * 1000 < Date.now(); // Compare expiration time with current time
   } catch (e) {
-    return true; // Token không hợp lệ => coi như hết hạn
+    return true; // Invalid token => consider as expired
   }
 };
 
@@ -66,8 +66,8 @@ const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
 function SignIn() {
   // Chakra color mode
-  const navigate = useNavigate(); // 🔹 Phải khai báo useNavigate() ở đây
-  const toast = useToast(); // 🔹 Hook để hiển thị thông báo
+  const navigate = useNavigate(); // 🔹 Must declare useNavigate() here
+  const toast = useToast(); // 🔹 Hook to display notifications
   const textColor = useColorModeValue("navy.700", "white");
   const textColorSecondary = "gray.400";
   const textColorDetails = useColorModeValue("navy.700", "secondaryGray.600");
@@ -104,7 +104,7 @@ function SignIn() {
           isClosable: true,
         });
 
-        // 🔹 Điều hướng theo vai trò của người dùng
+        // 🔹 Navigate based on user role
         setTimeout(() => {
           if (tokenPayload.role === "ROLE_ADMIN") {
             navigate("/admin/data-tables");
@@ -113,8 +113,8 @@ function SignIn() {
           }
         }, 2000);
       } catch (error) {
-        console.error("Lỗi giải mã token:", error);
-        localStorage.removeItem("token"); // Xóa token nếu lỗi
+        console.error("Token decoding error:", error);
+        localStorage.removeItem("token"); // Remove token if error
       }
     }
   }, [navigate, toast]);
@@ -122,49 +122,49 @@ function SignIn() {
 
   const handleLogin = async () => {
     setError("");
-  
-    // Kiểm tra xem name và password có giá trị không
+
+    // Check if name and password have values
     if (!name.trim() || !password.trim()) {
       setError("Username and password must not be empty.");
       return;
     }
-  
+
     const requestBody = { name, password };
-  
+
     console.log("Sending JSON to backend:", JSON.stringify(requestBody, null, 2));
-  
+
     try {
       const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(requestBody),
       });
-  
-      // Lấy raw text từ server
+
+      // Get raw text from server
       const rawData = await response.text();
       console.log("Raw response:", rawData);
-  
-      // Kiểm tra phản hồi từ server có phải JSON hay không
+
+      // Check if server response is JSON
       let data;
       try {
         data = JSON.parse(rawData);
       } catch (jsonError) {
-        // Nếu lỗi khi parse JSON, có thể server trả về chỉ một chuỗi token
+        // If error when parsing JSON, server may return just a token string
         data = { token: rawData };
       }
-  
+
       console.log("Parsed Data:", data);
-  
+
       if (!response.ok) {
         throw new Error(data.message || "You provided wrong information!");
       }
-  
+
       if (!data.token) {
-        throw new Error("Token không tồn tại trong phản hồi từ server");
+        throw new Error("Token does not exist in server response");
       }
-  
+
       localStorage.setItem("token", data.token);
-  
+
       try {
         const tokenPayload = jwtDecode(data.token);
         console.log("Decoded Token:", tokenPayload);
@@ -182,11 +182,11 @@ function SignIn() {
           } else if (tokenPayload.role === "ROLE_USER") {
             navigate("/user/profile");
           } else {
-            setError("Vai trò không hợp lệ");
+            setError("Invalid role");
           }
         }, 2000);
       } catch (decodeError) {
-        setError("Lỗi giải mã token. Token có thể không hợp lệ.");
+        setError("Token decoding error. Token may be invalid.");
         console.error("Decode Error:", decodeError);
       }
     } catch (err) {
@@ -194,7 +194,7 @@ function SignIn() {
       console.error("Fetch Error:", err);
     }
   };
-  
+
   return (
     <DefaultAuth illustrationBackground={illustration} image={illustration}>
       <Flex

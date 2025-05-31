@@ -2,13 +2,27 @@ import { useState } from 'react';
 import { MdDelete, MdCheckCircle, MdEdit, MdVisibility } from 'react-icons/md';
 import { Icon, IconButton, Spinner, Flex, Text } from '@chakra-ui/react';
 import { createColumnHelper } from '@tanstack/react-table';
+import { useToast } from '@chakra-ui/react';
 
 const columnHelper = createColumnHelper();
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
-const ActionsCell = ({ row, setData, toast, handleEdit, handleView }) => {
+
+const ActionsCell = ({ row, setData, toast, handleEdit, handleView, tableData }) => {
   const [status, setStatus] = useState('idle'); // "idle" | "loading" | "success"
+  const isAdmin = row.name === 'admin';
 
   const handleDelete = async () => {
+    if (isAdmin) {
+      toast({
+        title: 'Action blocked!',
+        description: 'Cannot delete admin account.',
+        status: 'warning',
+        duration: 2000,
+        isClosable: true,
+      });
+      return;
+    }
+
     try {
       setStatus('loading'); // Hiện icon loading
       const token = localStorage.getItem('token');
@@ -17,8 +31,8 @@ const ActionsCell = ({ row, setData, toast, handleEdit, handleView }) => {
         return;
       }
 
-      await fetch(`${API_BASE_URL}/api/admin/apartment-list/delete/${row.id}`, {
-        method: 'DELETE',
+      await fetch(`${API_BASE_URL}/api/admin/users/delete/${row.id}`, {
+        method: 'POST',
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
@@ -32,8 +46,8 @@ const ActionsCell = ({ row, setData, toast, handleEdit, handleView }) => {
       }, 1000); // 1s sau mới xóa hàng
 
       toast({
-        title: 'Apartment deleted',
-        description: `Apartment with ID: ${row.id} has been deleted successfully.`,
+        title: 'User deleted',
+        description: `User with ID: ${row.id} has been deleted successfully.`,
         status: 'success',
         duration: 500,
         isClosable: true,
@@ -66,12 +80,29 @@ const ActionsCell = ({ row, setData, toast, handleEdit, handleView }) => {
         size="sm"
         variant="ghost"
         onClick={() => handleEdit(row.id)}
+        isDisabled={isAdmin}
+      />
+      <IconButton
+        aria-label="Delete User"
+        icon={
+          status === 'loading' ? (
+            <Spinner size="sm" color="red.500" />
+          ) : status === 'success' ? (
+            <Icon as={MdCheckCircle} w="24px" h="24px" color="green.500" />
+          ) : (
+            <Icon as={MdDelete} w="24px" h="24px" color="red.500" />
+          )
+        }
+        size="sm"
+        variant="ghost"
+        onClick={handleDelete}
+        isDisabled={isAdmin || status === 'loading'}
       />
     </Flex>
   );
 };
 
-const columnsDataIcon = ({ setData, toast, handleEdit, handleView }) => {
+const columnsIcon = ({ setData, toast, handleEdit, handleView, tableData }) => {
   return [
     columnHelper.display({
       id: 'actions',
@@ -87,10 +118,11 @@ const columnsDataIcon = ({ setData, toast, handleEdit, handleView }) => {
           toast={toast}
           handleEdit={handleEdit}
           handleView={handleView}
+          tableData={tableData}
         />
       ),
     }),
   ];
 };
 
-export default columnsDataIcon;
+export default columnsIcon;

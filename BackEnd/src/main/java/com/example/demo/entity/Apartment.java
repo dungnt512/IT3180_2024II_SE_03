@@ -1,6 +1,7 @@
 package com.example.demo.entity;
 
 import com.example.demo.enums.ApartmentStatus;
+import com.example.demo.enums.ApartmentType;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -22,15 +23,14 @@ public class Apartment {
     @Column(name = "apartment_number", nullable = false, unique = true)
     private String apartmentNumber;
 
-    @Column(name = "room_number", nullable = false, unique = true)
+    @Column(name = "room_number", nullable = false, unique = false)
     private String roomNumber;
 
     private Integer floor;
     private Double area;
-    private String dateCreated;
 
     @Enumerated(EnumType.STRING)
-    private ApartmentStatus status;
+    private ApartmentStatus status = ApartmentStatus.VACANT;
 
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "apartment_bills", joinColumns = @JoinColumn(name = "apartment_id"))
@@ -41,4 +41,12 @@ public class Apartment {
     @CollectionTable(name = "apartment_residents", joinColumns = @JoinColumn(name = "apartment_id"))
     @Column(name = "resident_id")
     private Set<Long> residentIds;
+
+    @OneToMany(mappedBy = "apartment", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ParkingRental> parkingRentals;
+
+    @Enumerated(EnumType.STRING)
+    private ApartmentType type;
+
+
 }

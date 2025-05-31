@@ -33,7 +33,7 @@ public class JwtService {
                 .claims(claims)
                 .subject(username)
                 .issuedAt(new Date())
-                .expiration(new Date(System.currentTimeMillis() + 1 * 60 * 60 * 1000)) // Hết hạn sau 1 giờ
+                .expiration(new Date(System.currentTimeMillis() + 3600000)) // Hết hạn sau 10 giờ
                 .signWith(SECRET_KEY, Jwts.SIG.HS256)
                 .compact();
     }

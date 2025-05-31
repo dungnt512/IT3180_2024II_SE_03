@@ -62,6 +62,8 @@ public class Bill {
         return this.status == BillStatus.PAID;
     }
 
+    @Column(name = "invoice_id")
+    private Long invoiceId;
 
     public void markAsPaid() {
         this.status = BillStatus.PAID;

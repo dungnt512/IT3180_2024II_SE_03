@@ -8,15 +8,16 @@ import com.example.demo.service.ResidentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.*;
 
-@CrossOrigin(origins = "*") // Cho phép React frontend truy cập
-@RestController
+@Controller
 @RequestMapping("/api/admin/apartment-list")
 public class AdminListApartmentController {
-
     @Autowired
     private ApartmentService apartmentService;
 
@@ -37,7 +38,6 @@ public class AdminListApartmentController {
         return ResponseEntity.status(HttpStatus.CREATED).body("Apartment created successfully");
     }
 
-    // API lấy danh sách cư dân trong căn hộ
     @GetMapping("/residents/{apartmentId}")
     public ResponseEntity<Set<Resident>> getResidentsByApartment(@PathVariable Long apartmentId) {
         Optional<Apartment> apartment = apartmentService.getApartmentById(apartmentId);
@@ -45,33 +45,33 @@ public class AdminListApartmentController {
             Set<Long> residentIds = new HashSet<>(apartment.get().getResidentIds());
             Set<Resident> residents = residentService.findByIdIn(residentIds);
             return ResponseEntity.ok(residents);
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Collections.emptySet());
         }
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Collections.emptySet());
     }
 
-    // API lấy thông tin căn hộ theo ID
     @GetMapping("/edit-apartment/{id}")
     public ResponseEntity<Apartment> getApartmentById(@PathVariable("id") Long id) {
         Optional<Apartment> apartmentOpt = apartmentService.getApartmentById(id);
         return apartmentOpt.map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
-
-    // API cập nhật thông tin căn hộ
+    
     @PostMapping("/edit-apartment")
     public ResponseEntity<String> updateApartment(@RequestBody Apartment apartment) {
         ApartmentDTO apartmentDTO = new ApartmentDTO();
-        
+
         apartmentDTO.setApartmentNumber(apartment.getApartmentNumber());
         apartmentDTO.setRoomNumber(apartment.getRoomNumber());
         apartmentDTO.setArea(apartment.getArea());
         apartmentDTO.setFloor(apartment.getFloor());
+        apartmentDTO.setStatus(apartment.getStatus());
+        apartmentDTO.setType(apartment.getType());
 
         apartmentService.updateApartment(apartmentDTO);
-
         return ResponseEntity.ok("Apartment updated successfully");
     }
-    // API xóa căn hộ theo ID
+
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<Void> deleteApartment(@PathVariable Long id) {
         apartmentService.deleteApartment(id);

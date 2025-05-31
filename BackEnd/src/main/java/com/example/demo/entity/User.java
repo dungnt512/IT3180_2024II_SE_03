@@ -26,11 +26,11 @@ public class User implements UserDetails {
 
     private String password;
     private String role = "USER";
-    private String dateCreated;
 
     private boolean activation = true;
 
     private Long residentId;
+    private String dateCreated;
 
 
     @Override

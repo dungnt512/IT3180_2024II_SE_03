@@ -14,8 +14,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+
 import java.util.*;
 
 @Service
@@ -48,9 +47,6 @@ public class UserService {
         user.setResidentId(resident.getId()); // Lấy ID sau khi lưu
         user.setName(request.getName());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
-        
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-        user.setDateCreated(LocalDateTime.now().format(formatter));
         userRepository.save(user);
     }
     public void addUser(ManualUserDTO request) {
@@ -60,6 +56,7 @@ public class UserService {
         resident.setPhone(request.getPhone());
         resident.setEmail(request.getEmail());
         resident.setApartmentNumbers(request.getApartmentNumbers());
+        resident.setStatus(request.getStatus());
         residentRepository.save(resident);
 
         User user = new User();
@@ -67,9 +64,13 @@ public class UserService {
         user.setName(request.getName());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setRole(request.getRole());
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-        user.setDateCreated(LocalDateTime.now().format(formatter));
         userRepository.save(user);
+
+        apartmentService.updateResident(resident);
+    }
+
+    public User save(User user) {
+        return userRepository.save(user);
     }
 
     public boolean activateUser(Long id) {
@@ -105,9 +106,14 @@ public class UserService {
         if (userOptional.isPresent()) {
             User userUpdate = userOptional.get();
             userUpdate.setRole(user.getRole());
-//            userUpdate.setPassword(passwordEncoder.encode(user.getPassword()));
+
+            Resident resident = residentRepository.findById(userUpdate.getResidentId()).get();
+            apartmentService.deleteResident(resident);
+            resident.setApartmentNumbers(user.getApartmentNumbers());
+            apartmentService.updateResident(resident);
 
             userRepository.save(userUpdate);
+            residentRepository.save(resident);
             return true;
         }
         return false;
@@ -129,7 +135,6 @@ public class UserService {
         return false;
     }
 
-
     public String changePassword(Long userId, String oldPassword, String newPassword) {
         User user = userRepository.findById(userId).orElse(null);
 
@@ -137,26 +142,23 @@ public class UserService {
             return "error_user_not_found";
         }
 
-        // Debug thông tin
-        System.out.println("Stored Password (DB): " + user.getPassword());
-        System.out.println("Input Old Password: " + (String)(oldPassword));
-
-        // Sử dụng matches() để kiểm tra mật khẩu
         if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
-            System.out.println("❌ Mật khẩu cũ không đúng!");
             return "error_wrong_old_password";
         }
 
-        // Đổi mật khẩu mới
         user.setPassword(passwordEncoder.encode(newPassword));
         userRepository.save(user);
-        System.out.println("✅ Mật khẩu đã thay đổi thành công!");
         return "success";
     }
+
+
+
     public User findById(Long id) {
         return userRepository.findById(id).orElse(null);
     }
-
+    public List<User> findAllById(List<Long> ids) {
+        return userRepository.findAllById(ids);
+    }
     public User getUserByName(String username) {
         return userRepository.findByName(username);
     }

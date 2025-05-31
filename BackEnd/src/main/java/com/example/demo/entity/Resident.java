@@ -1,5 +1,6 @@
 package com.example.demo.entity;
 
+import com.example.demo.enums.ResidentStatus;
 import jakarta.persistence.*;
 import com.example.demo.enums.Role;
 import lombok.*;
@@ -31,10 +32,13 @@ public class Resident {
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "resident_apartment_numbers", joinColumns = @JoinColumn(name = "resident_id"))
     @Column(name = "apartment_number")
-    private Set<String> apartmentNumbers;
+    private Set<String> apartmentNumbers = Set.of();
 
     @Enumerated(EnumType.STRING)
     private Role role = Role.RESIDENT;
+
+    @Enumerated(EnumType.STRING)
+    private ResidentStatus status;
 
     /*
     @ManyToOne

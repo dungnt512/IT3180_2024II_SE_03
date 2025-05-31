@@ -51,15 +51,16 @@ public class ParkingService {
                 .filter(parkingLot -> !rentedLotIds.contains(parkingLot.getId()))
                 .collect(Collectors.toList());
     }
+    public ParkingLot getParkingLotByLotCode(String lotCode) {
+        return parkingLotRepository.findByLotCode(lotCode)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy chỗ đỗ xe với mã: " + lotCode));
+    }
+    
 
     // Lấy thông tin một chỗ đỗ xe theo ID
     public ParkingLot getParkingLotById(Long id) {
         return parkingLotRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy chỗ đỗ xe với ID: " + id));
-    }
-    public ParkingLot getParkingLotByLotCode(String lotCode) {
-        return parkingLotRepository.findByLotCode(lotCode)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy chỗ đỗ xe với mã: " + lotCode));
     }
 
     // Tạo mới một giao dịch thuê chỗ đỗ xe
@@ -72,6 +73,10 @@ public class ParkingService {
 
         // Lưu giao dịch thuê
         return parkingRentalRepository.save(rental);
+    }
+    
+    public List<ParkingRental> getRentalByParkingLotId(Long Id) {
+        return parkingRentalRepository.findByParkingLotId(Id);
     }
 
     public void save(ParkingRental rental) {
@@ -99,7 +104,9 @@ public class ParkingService {
         for (Resident resident : residents) {
             notificationService.createNotification(
                     resident.getId(),
-                    notificationMessage
+                    notificationMessage,
+                    "Parking: Apartment " + apartment.getApartmentNumber(),
+                    "/user/apartment-detail"
             );
         }
     }

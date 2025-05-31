@@ -27,7 +27,11 @@ public class ParkingConfig {
 
                 ParkingLot lot = new ParkingLot();
                 lot.setLotCode(lotCode);
-                lot.setType(ParkingType.CAR); // Bạn có thể đổi sang BIKE nếu cần
+                if ("B".equals(zone)) {
+                    lot.setType(ParkingType.MOTORBIKE);
+                } else {
+                    lot.setType(ParkingType.CAR);
+                }
                 lot.setStatus(ParkingLotStatus.AVAILABLE);
                 lot.setPlate("");
 

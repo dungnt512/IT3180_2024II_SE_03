@@ -31,7 +31,7 @@ public class Invoice {
     private String residentName;
 
     @Column(name = "total_amount", nullable = false)
-    private Double totalAmount;
+    private Long totalAmount;
 
     @Column(name = "description", length = 1000)
     private String description;

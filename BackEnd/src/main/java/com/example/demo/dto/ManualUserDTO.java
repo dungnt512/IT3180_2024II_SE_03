@@ -1,5 +1,6 @@
 package com.example.demo.dto;
 
+import com.example.demo.enums.ResidentStatus;
 import com.example.demo.validation.ApartmentsExists;
 import com.example.demo.validation.UniqueEmail;
 import com.example.demo.validation.UniqueName;
@@ -37,4 +38,6 @@ public class ManualUserDTO {
 
     @ApartmentsExists(message = "Apartment không tồn tại trong hệ thống")
     private Set<String> apartmentNumbers;
+
+    private ResidentStatus status;
 }

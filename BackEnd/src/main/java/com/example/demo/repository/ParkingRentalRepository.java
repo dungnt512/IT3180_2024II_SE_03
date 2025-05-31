@@ -12,4 +12,5 @@ public interface ParkingRentalRepository extends JpaRepository<ParkingRental, Lo
     // Truy vấn để lấy các giao dịch thuê chỗ đỗ xe có ngày hết hạn sau ngày hiện tại
     List<ParkingRental> findByEndDateAfter(LocalDate date);
     Set<ParkingRental> findByApartmentId(Long apartmentId);
+    List<ParkingRental> findByParkingLotId(Long parkingLotId); 
 }

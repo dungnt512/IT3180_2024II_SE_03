@@ -4,6 +4,7 @@ import com.example.demo.enums.BillType;
 import com.example.demo.validation.ApartmentExists;
 import com.example.demo.validation.ApartmentsExists;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -32,5 +33,6 @@ public class BillDTO {
     private Double amount;
 
     @NotNull(message = "Hạn đóng không được để trống")
+    @Future(message = "Ngày hạn đóng phải là ngày trong tương lai")
     private LocalDate dueDate;
 }

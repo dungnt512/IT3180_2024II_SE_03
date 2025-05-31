@@ -22,7 +22,6 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/parking-rentals")
 @RequiredArgsConstructor
-@CrossOrigin
 public class ParkingRentalController {
 
     @Autowired
@@ -76,4 +75,28 @@ public class ParkingRentalController {
 
         return ResponseEntity.ok("Thuê chỗ đỗ xe thành công");
     }
+    
+    @GetMapping("/new/view/{id}")
+    public ResponseEntity<?> getParkingLotDetail(@PathVariable String id) {
+        String lotcode = id;
+        ParkingLot parkingLot = parkingService.getParkingLotByLotCode(lotcode);
+
+        List<ParkingRental> rentalList = parkingService.getRentalByParkingLotId(parkingLot.getId());
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("parkingLot", parkingLot);
+
+        if (!rentalList.isEmpty()) {
+            ParkingRental rental = rentalList.get(0);
+            System.out.println(rental.getId());
+            response.put("apartmentNumber", rental.getApartment().getApartmentNumber());
+            response.put("licensePlate", parkingLot.getPlate());
+            response.put("endDate", rental.getEndDate());
+        } else {
+            response.put("rental", null);
+        }
+
+        return ResponseEntity.ok(response);
+    }
+
 }
